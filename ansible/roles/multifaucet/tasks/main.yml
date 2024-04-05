@@ -28,11 +28,11 @@
     - config/wallet.conf.php
 
 - name: Start multifaucet service
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: '{{ dashd_home }}/multifaucet'
     state: present
     build: true
-    pull: true
+    pull: always
 
 - name: Wait for database to be available
   community.docker.docker_container_exec:

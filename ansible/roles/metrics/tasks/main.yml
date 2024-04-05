@@ -41,7 +41,7 @@
     mode: '0644'
 
 - name: Start metrics
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: '{{ metrics_path }}'
-    restarted: true
+    recreate: always
     state: present

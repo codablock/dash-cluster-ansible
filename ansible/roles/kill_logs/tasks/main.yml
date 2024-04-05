@@ -1,7 +1,7 @@
 ---
 
 - name: Remove elasticsearch docker containers and volumes
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: '{{ elastic_path }}'
     state: absent
     remove_volumes: false
