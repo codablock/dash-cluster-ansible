@@ -188,11 +188,19 @@
             "validatorSet": {
               "llmqType": {{ platform_drive_validator_set_llmq_type }}
             },
+            {% if dash_network == "devnet" %}
             "chainLock": {
               "llmqType": 101,
               "llmqSize": 12,
               "dkgInterval": 24
             },
+            {% else %}
+            "chainLock": {
+              "llmqType": 1,
+              "llmqSize": 50,
+              "dkgInterval": 24
+            },
+            {% endif %}
             "epochTime": {{ platform_drive_abci_epoch_time }}
           },
           "tenderdash": {
