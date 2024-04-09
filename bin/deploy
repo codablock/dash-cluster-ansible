@@ -55,7 +55,7 @@ done
 . ./lib/cli/terraform.sh
 . ./lib/cli/ansible.sh
 
-node ./bin/firstRun.js ${NETWORK} ${NETWORK_NAME}
+node ./bin/firstRun.js ${NETWORK} ${NETWORK_NAME} || exit
 
 case ${STAGE} in
     1)
