@@ -4,20 +4,43 @@ set -ea
 
 . ./lib/cli/utils.sh
 
+# Default private key path
+DEFAULT_IDENTITY_FILE="$HOME/.ssh/evo-app-deploy.rsa"
+
 CMD_USAGE="SSH to Dash Network node
 
-Usage: ssh <network_name> <host_name>
+Usage: ssh <network_name> <host_name> [-i identity_file]
+
+Options:
+  -i, --identity-file   Specify the private key for SSH authentication
 "
 
-for i in "$@"
-do
-case ${i} in
-    -h|--help)
-        echo "$CMD_USAGE"
-        exit 0
-    ;;
-esac
+IDENTITY_FILE="$DEFAULT_IDENTITY_FILE"
+POSITIONAL_ARGS=()
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -i|--identity-file)
+            IDENTITY_FILE="$2"
+            shift 
+            shift 
+            ;;
+        -*|--*)
+            echo "Unknown option $1"
+            exit 1
+            ;;
+        *)
+            POSITIONAL_ARGS+=("$1") 
+            shift 
+            ;;
+    esac
 done
+
+set -- "${POSITIONAL_ARGS[@]}"
+
+if [ "${#POSITIONAL_ARGS[@]}" -ne 2 ]; then
+    echo "$CMD_USAGE"
+    exit 1
+fi
 
 NETWORK_NAME="$1"
 HOST_NAME="$2"
@@ -25,15 +48,19 @@ HOST_NAME="$2"
 . ./lib/cli/init.sh
 . ./lib/cli/ansible.sh
 
-if [[ -z ${HOST_NAME} ]]; then
+if [[ -z "$HOST_NAME" ]]; then
     print_error "Host name is required"
+    exit 1
 fi
 
-ANSIBLE_HOST=$(ansible_get_ip_by_host ${HOST_NAME})
+ANSIBLE_HOST=$(ansible_get_ip_by_host "$HOST_NAME")
 
-if [[ -z ${ANSIBLE_HOST} ]]; then
-    print_error "Invalid host name: ${HOST_NAME}. Please use host names from your inventory file '${INVENTORY_FILE}'"
+if [[ -z "$ANSIBLE_HOST" ]]; then
+    print_error "Invalid host name: $HOST_NAME. Please use host names from your inventory file '${INVENTORY_FILE}'"
+    exit 1
 fi
 
-# SSH into the node
-ssh -i $PRIVATE_KEY_PATH ubuntu@$ANSIBLE_HOST
+SSH_CMD="ssh -i $IDENTITY_FILE ubuntu@$ANSIBLE_HOST"
+
+
+eval $SSH_CMD

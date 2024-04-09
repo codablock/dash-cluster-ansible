@@ -18,7 +18,7 @@
   register: templates
 
 - name: Generate certs
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: '{{ bundle_path }}'
   when: templates is changed # noqa: no-handler
 

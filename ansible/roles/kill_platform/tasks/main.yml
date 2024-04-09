@@ -7,7 +7,7 @@
   when: inventory_hostname in groups["hp_masternodes"]
 
 - name: Remove tenderdash (seeds)
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: '{{ tenderdash_compose_path }}'
     state: absent
   when:

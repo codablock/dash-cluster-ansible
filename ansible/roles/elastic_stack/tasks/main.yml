@@ -65,11 +65,11 @@
     - kibana.yml
 
 - name: Start elastic
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: '{{ elastic_path }}'
     state: present
-    pull: true
-    restarted: true
+    pull: always
+    recreate: always
     services:
       - elasticsearch
 
@@ -96,11 +96,11 @@
       password: '{{ kibana_password }}'
 
 - name: Start kibana
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: '{{ elastic_path }}'
     state: present
-    pull: true
-    restarted: true
+    pull: always
+    recreate: always
     services:
       - kibana
 
