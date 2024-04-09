@@ -105,11 +105,11 @@
 
 # TODO: why does this always take exactly 30 seconds on first deploy?
 - name: Start dash core
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: '{{ dashd_compose_path }}'
     state: present
-    restarted: true
-    pull: true
+    pull: always
+    recreate: always
     timeout: 30
 
 - name: Wait for rpc to be available

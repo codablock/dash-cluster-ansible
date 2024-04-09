@@ -45,8 +45,8 @@
     - node_key.json
 
 - name: Start tenderdash
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: '{{ tenderdash_compose_path }}'
     state: present
-    restarted: true
-    pull: true
+    pull: always
+    recreate: always

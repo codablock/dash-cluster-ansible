@@ -18,11 +18,11 @@
     - .env
 
 - name: Start Insight
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: '{{ insight_path }}'
     state: present
-    restarted: true
-    pull: true
+    pull: always
+    recreate: always
   register: output
 
 - name: Check Insight container
