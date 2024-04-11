@@ -288,6 +288,15 @@ resource "aws_route53_record" "insight" {
   count = length(var.main_domain) > 1 ? 1 : 0
 }
 
+resource "aws_route53_record" "metrics" {
+  zone_id = data.aws_route53_zone.main_domain[0].zone_id
+  name    = "metrics.${var.public_network_name}.networks.${var.main_domain}"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_elb.web[count.index].dns_name]
+  count   = length(var.main_domain) > 1 ? 1 : 0
+}
+
 resource "aws_route53_record" "logs" {
   zone_id = data.aws_route53_zone.main_domain[count.index].zone_id
   name    = "logs.${var.public_network_name}.${var.main_domain}"
