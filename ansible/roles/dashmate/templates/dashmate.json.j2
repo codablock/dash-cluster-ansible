@@ -150,7 +150,7 @@
               "docker": {
                 "image": "{{ dashmate_platform_gateway_rate_limiter_metrics_docker_image }}"
               },
-              "host": "{{ private_ip }}"
+              "host": "{{ private_ip }}",
               "port": {{ dashmate_platform_gateway_rate_limiter_metrics_port }}
             },
             "unit": "{{ dashmate_platform_gateway_rate_limiter_unit }}",
@@ -292,7 +292,7 @@
             "metrics": {
               "enabled": true,
               "host": "{{ private_ip }}",
-              "port": {{ dashmate_platform_tenderdash_metrics_port }},
+              "port": {{ dashmate_platform_tenderdash_metrics_port }}
             },
             "consensus": {
               "createEmptyBlocks": true,
