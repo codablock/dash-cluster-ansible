@@ -319,6 +319,25 @@ resource "aws_security_group" "hp_masternode" {
     ])
   }
 
+  # Add ingress rule for port 9090
+  ingress {
+  from_port   = 9090
+  to_port     = 9090
+  protocol    = "tcp"
+  description = "Internal service on port 9090"
+  cidr_blocks = ["10.0.0.0/16"]  
+ }
+
+# Add ingress rule for port 9102
+ingress {
+  from_port   = 9102
+  to_port     = 9102
+  protocol    = "tcp"
+  description = "Internal service on port 9102"
+  cidr_blocks = ["10.0.0.0/16"] 
+ }
+
+
   # Tendermint RPC
   ingress {
     from_port   = var.tendermint_rpc_port
