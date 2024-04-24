@@ -273,8 +273,8 @@ resource "aws_security_group" "hp_masternode" {
 
   # DAPI
   ingress {
-    from_port   = var.dapi_port
-    to_port     = var.dapi_port
+    from_port   = var.gateway_port
+    to_port     = var.gateway_port
     protocol    = "tcp"
     description = "DAPI"
 

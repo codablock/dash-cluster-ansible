@@ -46,7 +46,7 @@ variable "drive_port" {
   default     = 6000
 }
 
-variable "dapi_port" {
+variable "gateway_port" {
   description = "DAPI port"
   default     = 1443
 }
