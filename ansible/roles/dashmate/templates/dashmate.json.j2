@@ -159,6 +159,16 @@
             "whitelist": [],
             "enabled": {% if dashmate_platform_gateway_rate_limiter_enabled %}true{% else %}false{% endif %}
           },
+          "log": {
+            "level": "{{ dashmate_platform_gateway_log_level }}",
+            "accessLogs": [
+              {
+                "type": "stdout",
+                "format": "text",
+                "template": null
+              }
+            ]
+          },
           "ssl": {
             "enabled": true,
             "provider": "{{ dashmate_platform_gateway_ssl_provider }}",
@@ -245,6 +255,11 @@
               "dkgInterval": 24
             },
             {% endif %}
+            "metrics": {
+              "enabled": {% if dashmate_platform_drive_abci_metrics_enabled %}true{% else %}false{% endif %},
+              "host": "{{ private_ip }}",
+              "port": {{ dashmate_platform_drive_abci_metrics_port }}
+            },
             "epochTime": {{ platform_drive_abci_epoch_time }}
           },
           "tenderdash": {
@@ -277,7 +292,8 @@
               "timeoutCheckTx": "{{dashmate_platform_drive_tenderdash_mempool_timeout_check_tx}}",
               "txEnqueueTimeout": "{{dashmate_platform_drive_tenderdash_mempool_tx_enqueue_timeout}}",
               "txSendRateLimit": {{dashmate_platform_drive_tenderdash_mempool_tx_send_rate_limit}},
-              "txRecvRateLimit": {{dashmate_platform_drive_tenderdash_mempool_tx_recv_rate_limit}}
+              "txRecvRateLimit": {{dashmate_platform_drive_tenderdash_mempool_tx_recv_rate_limit}},
+              "maxConcurrentCheckTx": {{dashmate_platform_drive_tenderdash_mempool_max_concurrent_check_tx}}
             },
             "rpc": {
               "host": "127.0.0.1",
