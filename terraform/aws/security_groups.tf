@@ -337,6 +337,17 @@ ingress {
   cidr_blocks = ["10.0.0.0/16"] 
  }
 
+ # Add ingress rule for port 29090
+ingress {
+  from_port   = 29090
+  to_port     = 29090
+  protocol    = "tcp"
+  description = "Internal service on port 9102"
+  cidr_blocks = ["10.0.0.0/16"] 
+ }
+
+ 
+
 
   # Tendermint RPC
   ingress {
