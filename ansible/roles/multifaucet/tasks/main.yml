@@ -31,12 +31,12 @@
   community.docker.docker_compose_v2:
     project_src: '{{ dashd_home }}/multifaucet'
     state: present
-    build: true
+    build: always
     pull: always
 
 - name: Wait for database to be available
   community.docker.docker_container_exec:
-    container: multifaucet_db_1
+    container: multifaucet-db-1
     command: mysqladmin ping -u multifaucet --password="multifaucet"
   register: response
   until: response.stdout == "mysqld is alive"
@@ -45,14 +45,14 @@
 
 - name: Create promo codes table
   community.docker.docker_container_exec:
-    container: multifaucet_db_1
+    container: multifaucet-db-1
     command: >
       mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet"
       -e 'CREATE TABLE IF NOT EXISTS faucet_promo_codes (id int NOT NULL, code varchar(255), minimum_payout int, maximum_payout int, PRIMARY KEY (id));'
 
 - name: Load MN promo code
   community.docker.docker_container_exec:
-    container: multifaucet_db_1
+    container: multifaucet-db-1
     command: >
       mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet"
       -e 'INSERT IGNORE INTO faucet_promo_codes (id,code,minimum_payout,maximum_payout)
@@ -60,9 +60,17 @@
 
 - name: Load HPMN promo code
   community.docker.docker_container_exec:
-    container: multifaucet_db_1
+    container: multifaucet-db-1
     command: >
       mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet"
       -e 'INSERT IGNORE INTO faucet_promo_codes (id,code,minimum_payout,maximum_payout)
           VALUES (2,"hp-masternode",{{ masternode_collaterals.hpmn }},{{ masternode_collaterals.hpmn | int + 10 }});'
   when: dash_network == "devnet"
+
+- name: Load platform promo code
+  community.docker.docker_container_exec:
+    container: multifaucet-db-1
+    command: >
+      mysql -h localhost -D multifaucet -u multifaucet --password="multifaucet"
+      -e 'INSERT IGNORE INTO faucet_promo_codes (id,code,minimum_payout,maximum_payout)
+          VALUES (3,"platform",50,55);'
