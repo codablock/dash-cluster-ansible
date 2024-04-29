@@ -271,3 +271,8 @@ variable "create_eip" {
   type        = bool
   default     = true
 }
+
+variable "mixer_size" {
+  description = "Size of the mixer disk in GB"
+  default     = "40"
+}
