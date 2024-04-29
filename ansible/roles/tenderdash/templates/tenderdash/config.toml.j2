@@ -71,9 +71,6 @@ genesis-file = "config/genesis.json"
 # Path to the JSON file containing the private key to use for node authentication in the p2p protocol
 node-key-file = "config/node_key.json"
 
-# Mechanism to connect to the ABCI application: socket | grpc
-abci = "socket"
-
 # If true, query the ABCI app on connecting to a new peer
 # so the app can decide if we should keep the connection or not
 filter-peers = false
@@ -345,6 +342,32 @@ ttl-duration = "0s"
 # has existed in the mempool at least ttl-num-blocks number of blocks or if
 # it's insertion time into the mempool is beyond ttl-duration.
 ttl-num-blocks = 0
+
+#######################################################
+###       ABCI App Connection Options               ###
+#######################################################
+[abci]
+# TCP or UNIX socket address of the ABCI application,
+# or routing rules for routed multi-app setup,
+# or the name of an ABCI application compiled in with the Tendermint binary
+# Example for routed multi-app setup:
+#   abci = "routed"
+#   address = "Info:socket:unix:///tmp/socket.1,Info:socket:unix:///tmp/socket.2,CheckTx:socket:unix:///tmp/socket.1,*:socket:unix:///tmp/socket.3"
+address = "/dev/null"
+# Transport mechanism to connect to the ABCI application: socket | grpc | routed
+transport = "socket"
+# Maximum number of simultaneous connections to the ABCI application
+# per each method. Map of a gRPC method name,like "echo", to the number of concurrent connections.
+# Special value "*" can be used to set the default limit for methods not explicitly listed.
+#
+# Example:
+#
+# grpc-concurrency = [
+#	{ "*" = 10 },
+#	{ "echo" = 2 },
+#	{ "info" = 2 },
+#]
+grpc-concurrency = [ ]
 
 #######################################################
 ###         State Sync Configuration Options        ###
