@@ -412,7 +412,7 @@ resource "aws_instance" "mixer" {
   }
 
   root_block_device {
-    volume_size = 40
+    volume_size = var.mixer_size
     volume_type = var.volume_type
   }
 
