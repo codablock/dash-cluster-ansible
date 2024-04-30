@@ -107,19 +107,16 @@
           "maxHeapSizeInBytes": {{ dashmate_platform_gateway_max_heap_size_in_bytes }},
           "upstreams": {
             "driveGrpc": {
-              "maxConnections": {{ dashmate_platform_gateway_upstreams_drive_grpc_max_connections }},
-              "maxRequests": {{ dashmate_platform_gateway_upstreams_drive_grpc_max_requests }},
-              "maxPendingRequests": {{ dashmate_platform_gateway_upstreams_drive_grpc_max_pending_requests }}
+              "maxRequests": {{ dashmate_platform_gateway_upstreams_drive_grpc_max_requests }}
             },
             "dapiApi": {
-              "maxConnections": {{ dashmate_platform_gateway_upstreams_dapi_api_max_connections }},
-              "maxRequests": {{ dashmate_platform_gateway_upstreams_dapi_api_max_requests }},
-              "maxPendingRequests": {{ dashmate_platform_gateway_upstreams_dapi_api_max_pending_requests }}
+              "maxRequests": {{ dashmate_platform_gateway_upstreams_dapi_api_max_requests }}
             },
             "dapiCoreStreams": {
-              "maxConnections": {{ dashmate_platform_gateway_upstreams_dapi_core_streams_max_connections }},
-              "maxRequests": {{ dashmate_platform_gateway_upstreams_dapi_core_streams_max_requests }},
-              "maxPendingRequests": {{ dashmate_platform_gateway_upstreams_dapi_core_streams_max_pending_requests }}
+              "maxRequests": {{ dashmate_platform_gateway_upstreams_dapi_core_streams_max_requests }}
+            },
+            "dapiJsonRpc": {
+              "maxRequests": {{ dashmate_platform_gateway_upstreams_dapi_json_rpc_max_requests }}
             }
           },
           "metrics": {
