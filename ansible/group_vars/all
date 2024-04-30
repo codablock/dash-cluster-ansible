@@ -156,7 +156,7 @@ swap_space: 2G
 
 elastic_username: elastic
 elastic_password:
-elastic_version: 8.11.3
+elastic_version: 8.13.2
 kibana_encryptionkey:
 # Set to 50% of instance memory
 # https://www.elastic.co/guide/en/elasticsearch/guide/current/heap-sizing.html
