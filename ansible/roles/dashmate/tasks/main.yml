@@ -2,303 +2,291 @@
 
 - name: Set vars
   ansible.builtin.import_tasks: ./set_vars.yml
-#
-#- name: Create dashmate group
-#  ansible.builtin.group:
-#    name: '{{ dashmate_group }}'
-#
-#- name: Create dashmate user
-#  ansible.builtin.user:
-#    name: '{{ dashmate_user }}'
-#    comment: 'Dashmate user'
-#    group: '{{ dashmate_group }}'
-#    home: '{{ dashmate_home }}'
-#    create_home: true
-#    shell: /bin/bash
-#    umask: '0002'
-#
-#- name: Add dashmate user to docker group
-#  ansible.builtin.user:
-#    name: 'dashmate'
-#    groups: docker
-#    append: true
-#
-#- name: Write dash.conf for dash-cli
-#  ansible.builtin.template:
-#    src: dash.conf.j2
-#    dest: /etc/dash.conf
-#    owner: root
-#    group: root
-#    mode: "0644"
-#
-#- name: Configure users for dash-cli
-#  ansible.builtin.include_role:
-#    name: dash_cli
-#    tasks_from: configure_users
-#  vars:
-#    dashmate_user_dict:
-#      user: '{{ dashmate_user }}'
-#      group: '{{ dashmate_group }}'
-#      dir: '{{ dashmate_home }}'
-#    users: '{{ system_users + [dashmate_user_dict] }}'
-#
-#- name: Create logs dir
-#  ansible.builtin.file:
-#    path: '{{ dashmate_logs_dir }}'
-#    state: directory
-#    owner: '{{ dashmate_user }}'
-#    group: '{{ dashmate_group }}'
-#    recurse: true
-#
-#- name: Configure log rotation
-#  ansible.builtin.include_role:
-#    name: arillso.logrotate
-#  vars:
-#    logrotate_applications:
-#      - name: platform-logs
-#        definitions:
-#          - logs:
-#              - '{{ dashmate_logs_dir }}/*.log'
-#            options:
-#              - rotate 7
-#              - daily
-#              - maxsize 1G
-#              - missingok
-#              - notifempty
-#              - copytruncate
-#              - compress
-#              - delaycompress
-#
-#- name: Ensure logrotate runs hourly under systemd timer
-#  ansible.builtin.lineinfile:
-#    path: /lib/systemd/system/logrotate.timer
-#    regexp: '^OnCalendar=hourly'
-#    insertafter: '^OnCalendar=daily'
-#    line: OnCalendar=hourly
-#
-#- name: Create dashmate config dir
-#  ansible.builtin.file:
-#    path: '{{ item }}'
-#    state: directory
-#    owner: '{{ dashmate_user }}'
-#    group: '{{ dashmate_group }}'
-#    mode: '0755'
-#  loop:
-#    - '{{ dashmate_config_dir }}'
-#
-#- name: Build dashmate
-#  ansible.builtin.import_tasks: ./build.yml
-#  when: dashmate_branch is defined
-#
-#- name: Install dashmate
-#  ansible.builtin.import_tasks: ./install.yml
-#  when: dashmate_version is defined
-#
-#- name: Retrieve dashmate version
-#  ansible.builtin.command: "{{ dashmate_cmd }} --version"
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_version_result
-#  changed_when: dashmate_version_result.rc == 0
-#
-#- name: Extract dashmate version
-#  ansible.builtin.set_fact:
-#    dashmate_config_version: "{{ (dashmate_version_result.stdout | split(' ') | first() | split('/'))[1] }}"
-#
-## This check will return an error code if config is missing, config schema is invalid or default config is not yet set
-#- name: Check state of dashmate config
-#  ansible.builtin.command: "{{ dashmate_cmd }} config"
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_config_result
-#  ignore_errors: true
-#  changed_when: true
-#
-#- name: Get ZeroSSL certificate ID from config
-#  ansible.builtin.command: "{{ dashmate_cmd }} config get platform.gateway.ssl.providerConfigs.zerossl.id"
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_zerossl_id_result
-#  changed_when: dashmate_zerossl_id_result.rc == 0
-#  when: dashmate_config_result.rc == 0
-#
-#- name: Set ZeroSSL certificate ID from config
-#  ansible.builtin.set_fact:
-#    dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result.stdout }}"
-#  when: dashmate_config_result.rc == 0 and dashmate_zerossl_id_result.stdout != 'null'
-#
-#- name: Write dashmate config file
-#  vars:
-#    template_bootstrap_peers: "{{ groups.seed_nodes }}"
-#  ansible.builtin.template:
-#    src: dashmate.json.j2
-#    dest: '{{ dashmate_config_dir }}/config.json'
-#    owner: '{{ dashmate_user }}'
-#    group: '{{ dashmate_group }}'
-#    mode: "0644"
-#  register: template_result
-#
-#- name: Render service configs
-#  ansible.builtin.command: "{{ dashmate_cmd }} config render"
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_render_configs_result
-#  changed_when: dashmate_render_configs_result.rc == 0
-#
-#- name: Generate self-signed SSL certificate for DAPI
-#  ansible.builtin.import_tasks: ./ssl/self_signed.yml
-#  when: dashmate_platform_enable and dashmate_platform_gateway_ssl_provider == 'self-signed'
-#
-#- name: Obtain ZeroSSL certificate for DAPI
-#  ansible.builtin.import_tasks: ./ssl/zerossl.yml
-#  when: dashmate_platform_enable and dashmate_platform_gateway_ssl_provider == 'zerossl'
-#
-#- name: Export current dashmate config
-#  ansible.builtin.shell: "{{ dashmate_cmd }} config envs > {{ dashmate_home }}/.env"
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_envs
-#  changed_when: dashmate_envs.rc == 0
-#
-#- name: Update dashmate images
-#  ansible.builtin.command: "{{ dashmate_cmd }} update --format=json"
-#  become: true
-#  become_user: dashmate
-#  register: dashmate_update
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  changed_when: dashmate_update.rc == 0
-#
-#- name: Get service statuses
-#  ansible.builtin.command: "{{ dashmate_cmd }} status services --format=json"
-#  become: true
-#  become_user: dashmate
-#  changed_when: dashmate_services_status.rc == 0
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_services_status
-#
-#- name: Set facts
-#  ansible.builtin.set_fact:
-#    is_core_started: >-
-#      {{
-#        dashmate_services_status.stdout |
-#        from_json |
-#        json_query('[?service==`core`&&status!=`not_started`]') |
-#        length | int > 0
-#      }}
-#    is_platform_started: >-
-#      {{
-#        dashmate_services_status.stdout |
-#        from_json |
-#        json_query('[?service!=`core`&&status!=`not_started`]') |
-#        length | int > 0
-#      }}
-#    is_core_images_updated: >-
-#      {{
-#        dashmate_update.stdout |
-#        from_json |
-#        json_query('[?name==`core`]') |
-#        sort(attribute='updated', reverse=true) |
-#        first() |
-#        json_query('updated')
-#      }}
-#    is_platform_images_updated: >-
-#      {{
-#        dashmate_update.stdout |
-#        from_json |
-#        json_query('[?name!=`core`]') |
-#        sort(attribute='updated', reverse=true) |
-#        first() |
-#        json_query('updated')
-#      }}
-#    is_dashmate_package_changed: "{{ dashmate_install_result.changed }}"
-#    is_dashmate_config_changed: "{{ template_result.changed }}"
-#
-#- name: Print status
-#  ansible.builtin.debug:
-#    msg: "\nCore Started: {{ is_core_started }}
-#          \nPlatform Started: {{ is_platform_started }}
-#          \nCore Images Updated: {{ is_core_images_updated }}
-#          \nPlatform Images Updated: {{ is_platform_images_updated }}
-#          \nDashmate Package Updated: {{ is_dashmate_package_changed }}
-#          \nDashmate Config Changed: {{ is_dashmate_config_changed }}"
+
+- name: Create dashmate group
+  ansible.builtin.group:
+    name: '{{ dashmate_group }}'
+
+- name: Create dashmate user
+  ansible.builtin.user:
+    name: '{{ dashmate_user }}'
+    comment: 'Dashmate user'
+    group: '{{ dashmate_group }}'
+    home: '{{ dashmate_home }}'
+    create_home: true
+    shell: /bin/bash
+    umask: '0002'
+
+- name: Add dashmate user to docker group
+  ansible.builtin.user:
+    name: 'dashmate'
+    groups: docker
+    append: true
+
+- name: Write dash.conf for dash-cli
+  ansible.builtin.template:
+    src: dash.conf.j2
+    dest: /etc/dash.conf
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure users for dash-cli
+  ansible.builtin.include_role:
+    name: dash_cli
+    tasks_from: configure_users
+  vars:
+    dashmate_user_dict:
+      user: '{{ dashmate_user }}'
+      group: '{{ dashmate_group }}'
+      dir: '{{ dashmate_home }}'
+    users: '{{ system_users + [dashmate_user_dict] }}'
+
+- name: Create logs dir
+  ansible.builtin.file:
+    path: '{{ dashmate_logs_dir }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    recurse: true
+
+- name: Configure log rotation
+  ansible.builtin.include_role:
+    name: arillso.logrotate
+  vars:
+    logrotate_applications:
+      - name: platform-logs
+        definitions:
+          - logs:
+              - '{{ dashmate_logs_dir }}/*.log'
+            options:
+              - rotate 7
+              - daily
+              - maxsize 1G
+              - missingok
+              - notifempty
+              - copytruncate
+              - compress
+              - delaycompress
+
+- name: Ensure logrotate runs hourly under systemd timer
+  ansible.builtin.lineinfile:
+    path: /lib/systemd/system/logrotate.timer
+    regexp: '^OnCalendar=hourly'
+    insertafter: '^OnCalendar=daily'
+    line: OnCalendar=hourly
+
+- name: Create dashmate config dir
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: '0755'
+  loop:
+    - '{{ dashmate_config_dir }}'
+
+- name: Build dashmate
+  ansible.builtin.import_tasks: ./build.yml
+  when: dashmate_branch is defined
+
+- name: Install dashmate
+  ansible.builtin.import_tasks: ./install.yml
+  when: dashmate_version is defined
+
+- name: Retrieve dashmate version
+  ansible.builtin.command: "{{ dashmate_cmd }} --version"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_version_result
+  changed_when: dashmate_version_result.rc == 0
+
+- name: Extract dashmate version
+  ansible.builtin.set_fact:
+    dashmate_config_version: "{{ (dashmate_version_result.stdout | split(' ') | first() | split('/'))[1] }}"
+
+# This check will return an error code if config is missing, config schema is invalid or default config is not yet set
+- name: Check state of dashmate config
+  ansible.builtin.command: "{{ dashmate_cmd }} config"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_config_result
+  ignore_errors: true
+  changed_when: true
+
+- name: Get ZeroSSL certificate ID from config
+  ansible.builtin.command: "{{ dashmate_cmd }} config get platform.gateway.ssl.providerConfigs.zerossl.id"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_zerossl_id_result
+  changed_when: dashmate_zerossl_id_result.rc == 0
+  when: dashmate_config_result.rc == 0
+
+- name: Set ZeroSSL certificate ID from config
+  ansible.builtin.set_fact:
+    dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result.stdout }}"
+  when: dashmate_config_result.rc == 0 and dashmate_zerossl_id_result.stdout != 'null'
+
+- name: Write dashmate config file
+  vars:
+    template_bootstrap_peers: "{{ groups.seed_nodes }}"
+  ansible.builtin.template:
+    src: dashmate.json.j2
+    dest: '{{ dashmate_config_dir }}/config.json'
+    owner: '{{ dashmate_user }}'
+    group: '{{ dashmate_group }}'
+    mode: "0644"
+  register: template_result
+
+- name: Render service configs
+  ansible.builtin.command: "{{ dashmate_cmd }} config render"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_render_configs_result
+  changed_when: dashmate_render_configs_result.rc == 0
+
+- name: Generate self-signed SSL certificate for DAPI
+  ansible.builtin.import_tasks: ./ssl/self_signed.yml
+  when: dashmate_platform_enable and dashmate_platform_gateway_ssl_provider == 'self-signed'
+
+- name: Obtain ZeroSSL certificate for DAPI
+  ansible.builtin.import_tasks: ./ssl/zerossl.yml
+  when: dashmate_platform_enable and dashmate_platform_gateway_ssl_provider == 'zerossl'
+
+- name: Export current dashmate config
+  ansible.builtin.shell: "{{ dashmate_cmd }} config envs > {{ dashmate_home }}/.env"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_envs
+  changed_when: dashmate_envs.rc == 0
+
+- name: Update dashmate images
+  ansible.builtin.command: "{{ dashmate_cmd }} update --format=json"
+  become: true
+  become_user: dashmate
+  register: dashmate_update
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  changed_when: dashmate_update.rc == 0
+
+- name: Get service statuses
+  ansible.builtin.command: "{{ dashmate_cmd }} status services --format=json"
+  become: true
+  become_user: dashmate
+  changed_when: dashmate_services_status.rc == 0
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_services_status
+
+- name: Set facts
+  ansible.builtin.set_fact:
+    is_core_started: >-
+      {{
+        dashmate_services_status.stdout |
+        from_json |
+        json_query('[?service==`core`&&status!=`not_started`]') |
+        length | int > 0
+      }}
+    is_platform_started: >-
+      {{
+        dashmate_services_status.stdout |
+        from_json |
+        json_query('[?service!=`core`&&status!=`not_started`]') |
+        length | int > 0
+      }}
+    is_core_images_updated: >-
+      {{
+        dashmate_update.stdout |
+        from_json |
+        json_query('[?name==`core`]') |
+        sort(attribute='updated', reverse=true) |
+        first() |
+        json_query('updated')
+      }}
+    is_platform_images_updated: >-
+      {{
+        dashmate_update.stdout |
+        from_json |
+        json_query('[?name!=`core`]') |
+        sort(attribute='updated', reverse=true) |
+        first() |
+        json_query('updated')
+      }}
+    is_dashmate_package_changed: "{{ dashmate_install_result.changed }}"
+    is_dashmate_config_changed: "{{ template_result.changed }}"
+
+- name: Print status
+  ansible.builtin.debug:
+    msg: "\nCore Started: {{ is_core_started }}
+          \nPlatform Started: {{ is_platform_started }}
+          \nCore Images Updated: {{ is_core_images_updated }}
+          \nPlatform Images Updated: {{ is_platform_images_updated }}
+          \nDashmate Package Updated: {{ is_dashmate_package_changed }}
+          \nDashmate Config Changed: {{ is_dashmate_config_changed }}"
 
 # Start logic:
 # start ALL when (core is down and platform is down)
 # start platform when (core is up and platform is down)
 
 # Start all if everything is stopped (not started yet)
-#- name: Start all dashmate services
-#  ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_start_all
-#  when:
-#    - not is_core_started
-#    - not is_platform_started
-#  changed_when: dashmate_start_all.rc == 0
+- name: Start all dashmate services
+  ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_start_all
+  when:
+    - not is_core_started
+    - not is_platform_started
+  changed_when: dashmate_start_all.rc == 0
 
 # Restart logic
 # dashmate version is changed => restart all
 # dashmate config is changed => restart all
 
-#- name: Restart all dashmate services
-#  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_restart_all
-#  when:
-#    - not dashmate_start_all.changed
-#    - is_dashmate_package_changed or is_dashmate_config_changed
-#  changed_when: dashmate_restart_all.rc == 0
+- name: Restart all dashmate services
+  ansible.builtin.command: "{{ dashmate_cmd }} restart --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_restart_all
+  when:
+    - not dashmate_start_all.changed
+    - is_dashmate_package_changed or is_dashmate_config_changed
+  changed_when: dashmate_restart_all.rc == 0
 
 # Force start logic
 # Force start is equivalent to `docker compose up` and will replace services that have changed
 
-#- name: Reset
-#  ansible.builtin.command: "{{ dashmate_cmd }} reset --platform --force --verbose"
-#  become: true
-#  become_user: dashmate
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  register: dashmate_force_start
-##  when:
-##    - not dashmate_start_all.changed
-##    - not dashmate_restart_all.changed
-#  changed_when: dashmate_force_start.rc == 0
-
-- name: Start
-  ansible.builtin.command: "{{ dashmate_cmd }} restart --platform --verbose"
+- name: Start not started services and replace updated services
+  ansible.builtin.command: "{{ dashmate_cmd }} start --force --verbose"
   become: true
   become_user: dashmate
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_force_start
-  #  when:
-  #    - not dashmate_start_all.changed
-  #    - not dashmate_restart_all.changed
+  when:
+    - not dashmate_start_all.changed
+    - not dashmate_restart_all.changed
   changed_when: dashmate_force_start.rc == 0
-#
-#- name: Disable dashmate helper build
-#  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.build.enabled false"
-#  become: true
-#  become_user: dashmate
-#  register: build_dashmate_helper
-#  args:
-#    chdir: '{{ dashmate_cwd }}'
-#  changed_when: build_dashmate_helper.rc == 0
+
+- name: Disable dashmate helper build
+  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.build.enabled false"
+  become: true
+  become_user: dashmate
+  register: build_dashmate_helper
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  changed_when: build_dashmate_helper.rc == 0
