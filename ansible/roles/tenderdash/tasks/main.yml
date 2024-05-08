@@ -62,7 +62,7 @@
           delaycompress
           missingok
           notifempty
-          create 0640 tenderdash adm
+          create 0644 tenderdash adm
       }
   when: tenderdash_network == 'testnet'
 
