@@ -52,7 +52,7 @@
     recreate: always
 
 - name: Configure logrotate for Tenderdash logs
-  copy:
+  ansible.builtin.copy:
     dest: /etc/logrotate.d/tenderdash
     content: |
       {{ tenderdash_compose_path }}/tenderdash/logs/*.log {
@@ -62,12 +62,12 @@
           delaycompress
           missingok
           notifempty
-          create 640 tenderdash adm
+          create 0640 tenderdash adm
       }
   when: tenderdash_network == 'testnet'
 
 - name: Add Logstash filter for Tenderdash TRACE logs
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/logstash/conf.d/tenderdash.conf
     line: |
       filter {
