@@ -62,9 +62,8 @@
           delaycompress
           missingok
           notifempty
-          create 0644 tenderdash adm  # Ensure correct permissions
+          create 0640 tenderdash adm  
       }
-  mode: '0644'  # Explicitly set the file mode for the task
   when: tenderdash_network == 'testnet'
 
 - name: Add Logstash filter for Tenderdash TRACE logs
