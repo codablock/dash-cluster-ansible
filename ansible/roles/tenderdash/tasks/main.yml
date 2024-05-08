@@ -76,3 +76,4 @@
         }
       }
   when: tenderdash_network == 'testnet'
+  
