@@ -50,3 +50,29 @@
     state: present
     pull: always
     recreate: always
+
+- name: Configure logrotate for Tenderdash logs
+  copy:
+    dest: /etc/logrotate.d/tenderdash
+    content: |
+      {{ tenderdash_compose_path }}/tenderdash/logs/*.log {
+          daily
+          rotate 3
+          compress
+          delaycompress
+          missingok
+          notifempty
+          create 640 tenderdash adm
+      }
+  when: tenderdash_network == 'testnet'
+
+- name: Add Logstash filter for Tenderdash TRACE logs
+  lineinfile:
+    path: /etc/logstash/conf.d/tenderdash.conf
+    line: |
+      filter {
+        if [log_level] == "TRACE" {
+          drop { }
+        }
+      }
+  when: tenderdash_network == 'testnet'

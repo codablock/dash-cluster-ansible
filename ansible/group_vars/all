@@ -45,7 +45,7 @@ tendermint_rpc_port: 36657
 tenderdash_uid: "100"
 tenderdash_gid: "1000"
 
-tenderdash_log_level: debug
+tenderdash_log_level: trace
 
 tenderdash_compose_project_name: tenderdash
 tenderdash_compose_path: '{{ dashd_home }}/{{ tenderdash_compose_project_name }}'
