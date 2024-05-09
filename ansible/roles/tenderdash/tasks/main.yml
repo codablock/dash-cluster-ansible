@@ -57,25 +57,23 @@
     content: |
       {{ tenderdash_compose_path }}/tenderdash/logs/*.log {
           daily
-          rotate 3
+          rotate 1
           compress
           delaycompress
           missingok
           notifempty
-          create 0644 {{ tenderdash_uid }} {{ tenderdash_gid }}
+          create 0640 {{ tenderdash_uid }} {{ tenderdash_gid }}
       }
     owner: '{{ tenderdash_uid }}'
     group: '{{ tenderdash_gid }}'
-    mode: '0644'
-  when: tenderdash_network == 'testnet'
+    mode: '0640'
 
 - name: Add Logstash filter for Tenderdash TRACE logs
   ansible.builtin.lineinfile:
     path: /etc/logstash/conf.d/tenderdash.conf
     line: |
       filter {
-        if [log_level] == "TRACE" {
+        if [log_level] == "trace" {
           drop { }
         }
       }
-  when: tenderdash_network == 'testnet'
