@@ -20,7 +20,7 @@
             {{ masternode.operator.private_key }}
             {{ masternode.node_key.id }}
             {{ tendermint_p2p_port }}
-            {{ dapi_port }}
+            {{ gateway_port }}
             ''
             {{ masternode.collateral.address }}" # Should already be funded from registration protx
   register: hpmn_protx

@@ -16,7 +16,7 @@
             {% if masternode_name is match('hp*') %}
             {{ masternode.node_key.id }}
             {{ tendermint_p2p_port }}
-            {{ dapi_port }}
+            {{ gateway_port }}
             {% endif %}
             {{ masternode.collateral.address }}"
   register: protx

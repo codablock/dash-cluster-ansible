@@ -158,7 +158,7 @@ resource "aws_lb" "seed" {
 
 resource "aws_lb_listener" "seed" {
   load_balancer_arn = aws_lb.seed.arn
-  port              = var.dapi_port
+  port              = var.gateway_port
   protocol          = "TLS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = aws_acm_certificate.seed.arn
@@ -172,13 +172,13 @@ resource "aws_lb_listener" "seed" {
 
 resource "aws_lb_target_group" "seed" {
   name     = "${var.public_network_name}-tg-seed"
-  port     = var.dapi_port
+  port     = var.gateway_port
   protocol = "TLS"
   vpc_id   = aws_vpc.default.id
 
   health_check {
     interval            = 30
-    port                = var.dapi_port
+    port                = var.gateway_port
     timeout             = 10
     protocol            = "HTTPS"
     healthy_threshold   = 3

@@ -52,8 +52,10 @@ tenderdash_compose_path: '{{ dashd_home }}/{{ tenderdash_compose_project_name }}
 
 # DAPI
 dapi_image: dashpay/dapi
-dapi_envoy_image: envoyproxy/envoy
-dapi_port: 1443
+
+# Gateway
+gateway_image: envoyproxy/envoy
+gateway_port: 1443
 
 # Insight
 insight_image: dashpay/insight
