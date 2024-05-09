@@ -62,7 +62,7 @@
           delaycompress
           missingok
           notifempty
-          create 0600 tenderdash  
+          create 0600 tenderdash
       }
   when: tenderdash_network == 'testnet'
 
