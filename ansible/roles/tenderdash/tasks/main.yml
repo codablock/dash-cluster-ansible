@@ -65,7 +65,7 @@
           create 0644 {{ tenderdash_uid }} {{ tenderdash_gid }}
       }
     owner: '{{ tenderdash_uid }}'
-    group: '{{ tenderdash_gid }}'  
+    group: '{{ tenderdash_gid }}'
     mode: '0644'
   when: tenderdash_network == 'testnet'
 
