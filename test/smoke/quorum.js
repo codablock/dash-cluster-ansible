@@ -42,6 +42,16 @@ const quorumCheckTypes = {
   },
 };
 
+function rejectAfterTimeout(promise, timeout) {
+  const rejectPromise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject(new Error(`Timeout of ${timeout}ms exceeded`));
+    }, timeout);
+  });
+
+  return Promise.race([promise, rejectPromise]);
+}
+
 describe('Quorums', () => {
   describe('All nodes', () => {
     // Set up vars to hold mn responses
@@ -119,7 +129,7 @@ describe('Quorums', () => {
           timeout: 15000,
         });
 
-        const promise = getContainerId(docker, 'core')
+        const commandPromise = getContainerId(docker, 'core')
           .then((containerId) => {
             containerIds[hostName] = containerId;
 
@@ -130,13 +140,14 @@ describe('Quorums', () => {
             execJSONDockerCommand(docker, containerId, ['dash-cli', 'getbestchainlock']),
             execJSONDockerCommand(docker, containerId, ['dash-cli', 'getblockchaininfo']),
             execJSONDockerCommand(docker, containerId, ['dash-cli', 'quorum', 'list']),
-          ])
-            .then(([getBlockCount, getBestChainLock, getBlockchainInfo, quorumList]) => {
-              blockCount[hostName] = getBlockCount;
-              bestChainLock[hostName] = getBestChainLock;
-              blockchainInfo[hostName] = getBlockchainInfo;
-              quorumLists[hostName] = quorumList;
-            }))
+          ]).then(([getBlockCount, getBestChainLock, getBlockchainInfo, quorumList]) => {
+            blockCount[hostName] = getBlockCount;
+            bestChainLock[hostName] = getBestChainLock;
+            blockchainInfo[hostName] = getBlockchainInfo;
+            quorumLists[hostName] = quorumList;
+          }));
+
+        const promise = rejectAfterTimeout(commandPromise, 15000)
           .catch((error) => {
             errors[hostName] = error;
           });
@@ -167,7 +178,9 @@ describe('Quorums', () => {
           'info',
           quorumCheckTypes[network.type].type,
           quorumLists[hostName][quorumCheckTypes[network.type].name][0],
-        )
+        );
+
+        const promise = rejectAfterTimeout(requestFirstQuorumInfo, timeout)
           // eslint-disable-next-line no-loop-func
           .then(({ result }) => {
             firstQuorumInfo[hostName] = result;
@@ -175,7 +188,7 @@ describe('Quorums', () => {
             errors[hostName] = error;
           });
 
-        promises.push(requestFirstQuorumInfo);
+        promises.push(promise);
       }
 
       for (const hostName of dashmateHosts) {
@@ -194,7 +207,7 @@ describe('Quorums', () => {
           timeout,
         });
 
-        const promise = execJSONDockerCommand(
+        const commandPromise = execJSONDockerCommand(
           docker,
           containerIds[hostName],
           [
@@ -204,11 +217,14 @@ describe('Quorums', () => {
             String(quorumCheckTypes[network.type].type),
             quorumLists[hostName][quorumCheckTypes[network.type].name][0],
           ],
-        ).then((result) => {
-          firstQuorumInfo[hostName] = result;
-        }).catch((error) => {
-          errors[hostName] = error;
-        });
+        );
+
+        const promise = rejectAfterTimeout(commandPromise, timeout)
+          .then((result) => {
+            firstQuorumInfo[hostName] = result;
+          }).catch((error) => {
+            errors[hostName] = error;
+          });
 
         promises.push(promise);
       }
@@ -227,7 +243,9 @@ describe('Quorums', () => {
       ({ result: instantsendTestTxid } = await client.sendToAddress(variables.faucet_address, 0.1, { wallet: 'dashd-wallet-1-faucet' }));
     });
 
-    before('Collect instantsend info', async () => {
+    before('Collect instantsend info', async function before() {
+      this.timeout(30000); // set mocha timeout
+
       // Wait six seconds here before checking for IS locks
       // TODO: implement this.slow() and await IS ZMQ message to mark test response speed yellow/red
       await wait(6000);
@@ -246,15 +264,16 @@ describe('Quorums', () => {
 
         client.setTimeout(timeout);
 
-        const requestGetRawMemPool = client.getRawMemPool(true)
-          // eslint-disable-next-line no-loop-func
+        const requestGetRawMemPool = client.getRawMemPool(true);
+
+        const promise = rejectAfterTimeout(requestGetRawMemPool, timeout)
           .then(({ result }) => {
             rawMemPool[hostName] = result;
           }).catch((error) => {
             errors[hostName] = error;
           });
 
-        promises.push(requestGetRawMemPool);
+        promises.push(promise);
       }
 
       for (const hostName of dashmateHosts) {
@@ -267,15 +286,18 @@ describe('Quorums', () => {
           timeout,
         });
 
-        const promise = execJSONDockerCommand(
+        const commandPromise = execJSONDockerCommand(
           docker,
           containerIds[hostName],
           ['dash-cli', 'getrawmempool', 'true'],
-        ).then((result) => {
-          rawMemPool[hostName] = result;
-        }).catch((error) => {
-          errors[hostName] = error;
-        });
+        );
+
+        const promise = rejectAfterTimeout(commandPromise, timeout)
+          .then((result) => {
+            rawMemPool[hostName] = result;
+          }).catch((error) => {
+            errors[hostName] = error;
+          });
 
         promises.push(promise);
       }
