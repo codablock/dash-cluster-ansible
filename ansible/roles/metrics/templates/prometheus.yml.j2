@@ -32,13 +32,30 @@ scrape_configs:
 
   # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
   - job_name: "tenderdash"
-
-    # metrics_path defaults to '/metrics'
-    # scheme defaults to 'http'.
-
     static_configs:
 {% for hp_name in groups["hp_masternodes"] %}
       - targets: ["{{ hostvars[hp_name]['private_ip'] }}:{{ prometheus_port }}"]
+        labels:
+          node: "{{ hp_name }}"
+{% endfor %}
+  - job_name: "gateway"
+    static_configs:
+{% for hp_name in groups["hp_masternodes"] %}
+      - targets: ["{{ hostvars[hp_name]['private_ip'] }}:9090"]
+        labels:
+          node: "{{ hp_name }}"
+{% endfor %}
+  - job_name: "gateway_rate_limiter"
+    static_configs:
+{% for hp_name in groups["hp_masternodes"] %}
+      - targets: ["{{ hostvars[hp_name]['private_ip'] }}:9102"]
+        labels:
+          node: "{{ hp_name }}"
+{% endfor %}
+  - job_name: "drive"
+    static_configs:
+{% for hp_name in groups["hp_masternodes"] %}
+      - targets: ["{{ hostvars[hp_name]['private_ip'] }}:29090"]
         labels:
           node: "{{ hp_name }}"
 {% endfor %}

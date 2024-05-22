@@ -59,7 +59,7 @@ locals {
     "${path.module}/templates/services/service.tpl",
     {
       name = "DAPI"
-      port = var.dapi_port
+      port = var.gateway_port
     }
   )
 
@@ -234,7 +234,7 @@ hp_masternodes_amd = [
             "   - dapi_api",
             "   - dapi_tx_filter_stream",
             "   - dapi_nginx",
-            "   - dapi_envoy",
+            "   - gateway",
             "   - drive_abci",
             "   - tendermint",
             "   - insight",
@@ -290,7 +290,7 @@ hp_masternodes_amd = [
             "   - dapi_api",
             "   - dapi_tx_filter_stream",
             "   - dapi_nginx",
-            "   - dapi_envoy",
+            "   - gateway",
             "   - drive_abci",
             "   - tendermint",
             "   - insight",
@@ -405,7 +405,7 @@ hp_masternodes_amd = [
           "   - dapi_api",
           "   - dapi_tx_filter_stream",
           "   - dapi_nginx",
-          "   - dapi_envoy",
+          "   - gateway",
           "   - drive_abci",
           "   - tendermint",
           "   - insight",

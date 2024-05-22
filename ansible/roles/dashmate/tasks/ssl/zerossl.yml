@@ -2,8 +2,8 @@
 
 - name: Set vars
   ansible.builtin.set_fact:
-    dashmate_zerossl_keys_path: "{{ dashmate_config_dir }}/{{ dash_network_name }}/platform/dapi/envoy/ssl"
-    dashmate_zerossl_config_path: "platform.dapi.envoy.ssl.providerConfigs.zerossl"
+    dashmate_zerossl_keys_path: "{{ dashmate_config_dir }}/{{ dash_network_name }}/platform/gateway/ssl"
+    dashmate_zerossl_config_path: "platform.gateway.ssl.providerConfigs.zerossl"
     dashmate_zerossl_ssm_path: "/network-deploy/{{ dash_network_name }}/{{ inventory_hostname }}/zerossl"
     dashmate_zerossl_csr_file_name: "csr.pem"
     dashmate_zerossl_private_key_file_name: "private.key"

@@ -119,7 +119,7 @@
   changed_when: true
 
 - name: Get ZeroSSL certificate ID from config
-  ansible.builtin.command: "{{ dashmate_cmd }} config get platform.dapi.envoy.ssl.providerConfigs.zerossl.id"
+  ansible.builtin.command: "{{ dashmate_cmd }} config get platform.gateway.ssl.providerConfigs.zerossl.id"
   become: true
   become_user: dashmate
   args:
@@ -155,11 +155,11 @@
 
 - name: Generate self-signed SSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/self_signed.yml
-  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'self-signed'
+  when: dashmate_platform_enable and dashmate_platform_gateway_ssl_provider == 'self-signed'
 
 - name: Obtain ZeroSSL certificate for DAPI
   ansible.builtin.import_tasks: ./ssl/zerossl.yml
-  when: dashmate_platform_enable and dashmate_platform_dapi_envoy_ssl_provider == 'zerossl'
+  when: dashmate_platform_enable and dashmate_platform_gateway_ssl_provider == 'zerossl'
 
 - name: Export current dashmate config
   ansible.builtin.shell: "{{ dashmate_cmd }} config envs > {{ dashmate_home }}/.env"

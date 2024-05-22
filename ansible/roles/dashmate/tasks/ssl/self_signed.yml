@@ -1,7 +1,7 @@
 ---
 - name: Set vars
   ansible.builtin.set_fact:
-    dashmate_selfsigned_ssl_keys_path: "{{ dashmate_config_dir }}/{{ dash_network_name }}/platform/dapi/envoy/ssl"
+    dashmate_selfsigned_ssl_keys_path: "{{ dashmate_config_dir }}/{{ dash_network_name }}/platform/gateway/ssl"
 
 - name: Create dashmate ssl directory
   ansible.builtin.file:

@@ -273,8 +273,8 @@ resource "aws_security_group" "hp_masternode" {
 
   # DAPI
   ingress {
-    from_port   = var.dapi_port
-    to_port     = var.dapi_port
+    from_port   = var.gateway_port
+    to_port     = var.gateway_port
     protocol    = "tcp"
     description = "DAPI"
 
@@ -318,6 +318,36 @@ resource "aws_security_group" "hp_masternode" {
       "${aws_eip.vpn[0].public_ip}/32",
     ])
   }
+
+  # Add ingress rule for port 9090
+  ingress {
+    from_port   = 9090
+    to_port     = 9090
+    protocol    = "tcp"
+    description = "Internal service on port 9090"
+    cidr_blocks = ["10.0.0.0/16"]  
+ }
+
+# Add ingress rule for port 9102
+  ingress {
+    from_port   = 9102
+    to_port     = 9102
+    protocol    = "tcp"
+    description = "Internal service on port 9102"
+    cidr_blocks = ["10.0.0.0/16"] 
+  }
+
+ # Add ingress rule for port 29090
+  ingress {
+    from_port   = 29090
+    to_port     = 29090
+    protocol    = "tcp"
+    description = "Internal service on port 9102"
+    cidr_blocks = ["10.0.0.0/16"] 
+  }
+
+ 
+
 
   # Tendermint RPC
   ingress {

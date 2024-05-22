@@ -46,7 +46,7 @@ variable "drive_port" {
   default     = 6000
 }
 
-variable "dapi_port" {
+variable "gateway_port" {
   description = "DAPI port"
   default     = 1443
 }
@@ -228,7 +228,7 @@ variable "logs_node_instance_size" {
 
 variable "load_test_root_disk_size" {
   description = "Default disk size for load testing nodes"
-  default     = 20
+  default     = 40
 }
 
 variable "load_test_instance_type" {

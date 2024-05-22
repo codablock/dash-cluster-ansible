@@ -99,34 +99,85 @@
       },
       "platform": {
         "enable": {% if dashmate_platform_enable %}true{% else %}false{% endif %},
-        "dapi": {
-          "envoy": {
-            "docker": {
-              "image": "{{ dapi_envoy_image }}"
+        "gateway": {
+          "docker": {
+            "image": "{{ gateway_image }}"
+          },
+          "maxConnections": {{ dashmate_platform_gateway_max_connections }},
+          "maxHeapSizeInBytes": {{ dashmate_platform_gateway_max_heap_size_in_bytes }},
+          "upstreams": {
+            "driveGrpc": {
+              "maxRequests": {{ dashmate_platform_gateway_upstreams_drive_grpc_max_requests }}
             },
-            "http": {
+            "dapiApi": {
+              "maxRequests": {{ dashmate_platform_gateway_upstreams_dapi_api_max_requests }}
+            },
+            "dapiCoreStreams": {
+              "maxRequests": {{ dashmate_platform_gateway_upstreams_dapi_core_streams_max_requests }}
+            },
+            "dapiJsonRpc": {
+              "maxRequests": {{ dashmate_platform_gateway_upstreams_dapi_json_rpc_max_requests }}
+            }
+          },
+          "metrics": {
+            "enabled": {% if dashmate_platform_gateway_metrics_enabled %}true{% else %}false{% endif %},
+            "host": "{{ private_ip }}",
+            "port": {{ dashmate_platform_gateway_metrics_port }}
+          },
+          "admin": {
+            "enabled": {% if dashmate_platform_gateway_metrics_enabled %}true{% else %}false{% endif %},
+            "host": "127.0.0.1",
+            "port": 9901
+          },
+          "listeners": {
+            "dapiAndDrive": {
               "host": "0.0.0.0",
-              "port": {{ dapi_port }},
-              "connectTimeout": "{{ dashmate_platform_dapi_envoy_http_connect_timeout }}",
-              "responseTimeout": "{{ dashmate_platform_dapi_envoy_http_response_timeout }}"
-            },
-            "rateLimiter": {
-              "maxTokens": 300,
-              "tokensPerFill": 150,
-              "fillInterval": "60s",
-              "enabled": {% if dashmate_platform_dapi_envoy_rate_limiter_enabled %}true{% else %}false{% endif %}
-            },
-            "ssl": {
-              "enabled": true,
-              "provider": "{{ dashmate_platform_dapi_envoy_ssl_provider }}",
-              "providerConfigs": {
-                "zerossl": {
-                  "apiKey": {% if dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key is not none and dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key != '' %}"{{ dashmate_platform_dapi_envoy_ssl_provider_config_zerossl_api_key }}"{% else %}null{% endif %},
-                  "id": {% if dashmate_zerossl_config_certificate_id is defined %}"{{ dashmate_zerossl_config_certificate_id }}"{% else %}null{% endif +%}
-                }
+              "port": {{ gateway_port }},
+              "http2": {
+                "maxConcurrentStreams": {{ dashmate_platform_gateway_listeners_dapi_and_drive_http2_max_concurrent_streams }}
               }
             }
           },
+          "rateLimiter": {
+            "docker": {
+              "image": "{{ dashmate_platform_gateway_rate_limiter_docker_image }}"
+            },
+            "metrics": {
+              "enabled": {% if dashmate_platform_gateway_rate_limiter_metrics_enabled %}true{% else %}false{% endif %},
+              "docker": {
+                "image": "{{ dashmate_platform_gateway_rate_limiter_metrics_docker_image }}"
+              },
+              "host": "{{ private_ip }}",
+              "port": {{ dashmate_platform_gateway_rate_limiter_metrics_port }}
+            },
+            "unit": "{{ dashmate_platform_gateway_rate_limiter_unit }}",
+            "requestsPerUnit": {{ dashmate_platform_gateway_rate_limiter_requests_per_unit }},
+            "blacklist": [],
+            "whitelist": [],
+            "enabled": {% if dashmate_platform_gateway_rate_limiter_enabled %}true{% else %}false{% endif %}
+          },
+          "log": {
+            "level": "{{ dashmate_platform_gateway_log_level }}",
+            "accessLogs": [
+              {
+                "type": "stdout",
+                "format": "text",
+                "template": null
+              }
+            ]
+          },
+          "ssl": {
+            "enabled": true,
+            "provider": "{{ dashmate_platform_gateway_ssl_provider }}",
+            "providerConfigs": {
+              "zerossl": {
+                "apiKey": {% if dashmate_platform_gateway_ssl_provider_config_zerossl_api_key is not none and dashmate_platform_gateway_ssl_provider_config_zerossl_api_key != '' %}"{{ dashmate_platform_gateway_ssl_provider_config_zerossl_api_key }}"{% else %}null{% endif %},
+                "id": {% if dashmate_zerossl_config_certificate_id is defined %}"{{ dashmate_zerossl_config_certificate_id }}"{% else %}null{% endif +%}
+              }
+            }
+          }
+        },
+        "dapi": {
           "api": {
             "docker": {
               "image": "{{ dapi_image }}",
@@ -183,7 +234,7 @@
               "enabled": false,
               "host": "127.0.0.1",
               "port": 6669,
-              "retention_secs": 180
+              "retention": 180
             },
             "validatorSet": {
               "llmqType": {{ platform_drive_validator_set_llmq_type }}
@@ -201,6 +252,11 @@
               "dkgInterval": 24
             },
             {% endif %}
+            "metrics": {
+              "enabled": {% if dashmate_platform_drive_abci_metrics_enabled %}true{% else %}false{% endif %},
+              "host": "{{ private_ip }}",
+              "port": {{ dashmate_platform_drive_abci_metrics_port }}
+            },
             "epochTime": {{ platform_drive_abci_epoch_time }}
           },
           "tenderdash": {
@@ -233,7 +289,8 @@
               "timeoutCheckTx": "{{dashmate_platform_drive_tenderdash_mempool_timeout_check_tx}}",
               "txEnqueueTimeout": "{{dashmate_platform_drive_tenderdash_mempool_tx_enqueue_timeout}}",
               "txSendRateLimit": {{dashmate_platform_drive_tenderdash_mempool_tx_send_rate_limit}},
-              "txRecvRateLimit": {{dashmate_platform_drive_tenderdash_mempool_tx_recv_rate_limit}}
+              "txRecvRateLimit": {{dashmate_platform_drive_tenderdash_mempool_tx_recv_rate_limit}},
+              "maxConcurrentCheckTx": {{dashmate_platform_drive_tenderdash_mempool_max_concurrent_check_tx}}
             },
             "rpc": {
               "host": "127.0.0.1",
@@ -248,7 +305,7 @@
             "metrics": {
               "enabled": true,
               "host": "{{ private_ip }}",
-              "port": {{ prometheus_port }}
+              "port": {{ dashmate_platform_tenderdash_metrics_port }}
             },
             "consensus": {
               "createEmptyBlocks": true,
