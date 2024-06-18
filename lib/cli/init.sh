@@ -1,6 +1,12 @@
 # Validate network name
 
-networks=("regtest testnet devnet mainnet mainnet-support")
+NETWORK_NAME=$1
+networks=("regtest" "testnet" "devnet" "mainnet" "mainnet-support")
+
+print_error() {
+    echo "$1" >&2
+    exit 1
+}
 
 if grep -q "devnet-" <<< "$NETWORK_NAME"; then
     NETWORK="devnet"
@@ -13,6 +19,8 @@ elif [[ " ${networks[@]} " =~ " ${NETWORK_NAME} " ]]; then
 else
     print_error "Invalid network name '$NETWORK_NAME'. Supported networks: regtest, devnet-<name>, testnet, mainnet, mainnet-support"
 fi
+
+echo "Selected network: $NETWORK"
 
 INVENTORY_FILE="networks/$NETWORK_NAME.inventory"
 ANSIBLE_CONFIG_PATH="networks/$NETWORK_NAME.yml"
