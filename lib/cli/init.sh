@@ -1,6 +1,6 @@
 # Validate network name
 
-networks=("regtest testnet devnet mainnet")
+networks=("regtest testnet devnet mainnet mainnet-support")
 
 if grep -q "devnet-" <<< "$NETWORK_NAME"; then
     NETWORK="devnet"
@@ -11,7 +11,7 @@ if grep -q "devnet-" <<< "$NETWORK_NAME"; then
 elif [[ " ${networks[@]} " =~ " ${NETWORK_NAME} " ]]; then
     NETWORK="$NETWORK_NAME"
 else
-    print_error "Invalid network name '$NETWORK_NAME'. Supported networks: regtest, devnet-<name>, testnet, mainnet"
+    print_error "Invalid network name '$NETWORK_NAME'. Supported networks: regtest, devnet-<name>, testnet, mainnet, mainnet-support"
 fi
 
 INVENTORY_FILE="networks/$NETWORK_NAME.inventory"
