@@ -25,7 +25,6 @@ drive_log_stdout_level: info
 drive_log_pretty_file_level: silent
 drive_log_json_file_level: silent
 drive_log_grovedb_operations: false
-platform_drive_validator_set_llmq_type:
 
 core_llmq_types:
     1: llmq_50_60

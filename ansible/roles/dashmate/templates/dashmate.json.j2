@@ -237,21 +237,29 @@
               "retention": 180
             },
             "validatorSet": {
-              "llmqType": {{ platform_drive_validator_set_llmq_type }}
+              "quorum": {
+                "llmqType": {{ platform_drive_validator_set_quorum_llmq_type }},
+                "dkgInterval": {{ platform_drive_validator_set_quorum_dkg_interval }},
+                "activeSigners": {{ platform_drive_validator_set_quorum_active_signers }},
+                "rotation": {% if platform_drive_validator_set_quorum_rotation %}true{% else %}false{% endif %}
+              }
             },
-            {% if dash_network == "devnet" %}
             "chainLock": {
-              "llmqType": 101,
-              "llmqSize": 12,
-              "dkgInterval": 24
+              "quorum": {
+                "llmqType": {{ platform_drive_chain_lock_quorum_llmq_type }},
+                "dkgInterval": {{ platform_drive_chain_lock_quorum_dkg_interval }},
+                "activeSigners": {{ platform_drive_chain_lock_quorum_active_signers }},
+                "rotation": {% if platform_drive_chain_lock_quorum_rotation %}true{% else %}false{% endif %}
+              }
             },
-            {% else %}
-            "chainLock": {
-              "llmqType": 1,
-              "llmqSize": 50,
-              "dkgInterval": 24
+            "instantLock": {
+              "quorum": {
+                "llmqType": {{ platform_drive_instant_lock_quorum_llmq_type }},
+                "dkgInterval": {{ platform_drive_instant_lock_quorum_dkg_interval }},
+                "activeSigners": {{ platform_drive_instant_lock_quorum_active_signers }},
+                "rotation": {% if platform_drive_instant_lock_quorum_rotation %}true{% else %}false{% endif %}
+              }
             },
-            {% endif %}
             "metrics": {
               "enabled": {% if dashmate_platform_drive_abci_metrics_enabled %}true{% else %}false{% endif %},
               "host": "{{ private_ip }}",
@@ -380,7 +388,7 @@
                   "app_version": "1"
                 }
               },
-              "validator_quorum_type": {{ platform_drive_validator_set_llmq_type }}
+              "validator_quorum_type": {{ platform_drive_validator_set_quorum_llmq_type }}
             }
           }
         },
