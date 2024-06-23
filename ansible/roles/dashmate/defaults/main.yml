@@ -63,6 +63,11 @@ platform_drive_instant_lock_quorum_llmq_type:
 platform_drive_instant_lock_quorum_dkg_interval:
 platform_drive_instant_lock_quorum_active_signers:
 platform_drive_instant_lock_quorum_rotation:
+dashmate_core_rpc_dashmate_password:
+dashmate_core_rpc_dapi_password:
+dashmate_core_rpc_drive_consensus_password:
+dashmate_core_rpc_drive_check_tx_password:
+dashmate_core_rpc_tenderdash_password:
 
 
 # Unsafe params. Use only if you understand what you are doing.
