@@ -70,7 +70,7 @@
                 "getbestblockhash", "getblockhash", "sendrawtransaction", "getrawtransaction",
                 "getblockstats", "getmerkleblocks", "getrawtransactionmulti", "getrawmempool",
                 "getblockcount", "getbestchainlock", "getblock", "getblockheader", "getblockheaders",
-                "protx diff", "getnetworkinfo", "getblockchaininfo", "mnsync status", "masternode status"
+                "protxdiff", "getnetworkinfo", "getblockchaininfo", "mnsyncstatus", "masternodestatus"
               ],
               "lowPriority": true
             },
@@ -78,8 +78,8 @@
               "password": "{{ dashmate_core_rpc_drive_consensus_password }}",
               "whitelist": [
                 "getbestchainlock", "getblockchaininfo", "getrawtransaction", "submitchainlock",
-                "verifychainlock", "protx listdiff", "quorum listextended", "quorum info",
-                "getassetunlockstatuses", "sendrawtransaction", "mnsync status"
+                "verifychainlock", "protxlistdiff", "quorumlistextended", "quoruminfo",
+                "getassetunlockstatuses", "sendrawtransaction", "mnsyncstatus"
               ],
               "lowPriority": false
             },
@@ -91,7 +91,7 @@
             "tenderdash": {
               "password": "{{ dashmate_core_rpc_tenderdash_password }}",
               "whitelist": [
-                "quorum info", "quorum verify", "quorum sign", "masternode status", "masternodelist",
+                "quoruminfo", "quorumverify", "quorumsign", "masternodestatus", "masternodelist",
                 "ping", "getnetworkinfo"
               ],
               "lowPriority": false
@@ -271,6 +271,11 @@
                 "format": "json",
                 "color": null
               }{% endif %}
+            },
+            "grovedbVisualizer": {
+              "enabled": {% if platform_drive_grovedb_visualizer_enabled %}true{% else %}false{% endif %},
+              "host": "{{ platform_drive_grovedb_visualizer_host }}",
+              "port": {{ platform_drive_grovedb_visualizer_port }}
             },
             "tokioConsole": {
               "enabled": false,
