@@ -4,11 +4,12 @@
 
 - name: Fail if vars are not set properly
   ansible.builtin.fail:
-    msg: 'num_blocks, balance_needed or txid_list must always be set according to the value of generate'
+    msg: 'num_blocks, balance_needed, txid_list or spork_name must always be set according to the value of generate'
   when: >
     (generate == 'blocks' and num_blocks is not defined) or
     (generate == 'balance' and target_balance is not defined) or
     (generate == 'confirmations' and (txid_list is not defined or tx_source is not defined))
+    (generate == 'spork_activation' and spork_name is not defined)
 
 - name: Specify which networks permit generating blocks
   ansible.builtin.set_fact:
@@ -62,6 +63,17 @@
   retries: 200
   delay: 10
   changed_when: gettransaction_result.rc == 0
+
+# Option: spork_activation
+
+- name: Wait for {{ spork_name }} to be activated
+  ansible.builtin.command: dash-cli spork active
+  when: generate == 'spork_activation'
+  register: active_sporks
+  until: (active_sporks.stdout | from_json)[spork_name]
+  retries: 200
+  delay: 10
+  changed_when: active_sporks.rc == 0
 
 # Stop mining
 
