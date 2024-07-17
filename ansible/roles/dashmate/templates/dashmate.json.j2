@@ -274,7 +274,7 @@
             },
             "grovedbVisualizer": {
               "enabled": {% if platform_drive_grovedb_visualizer_enabled %}true{% else %}false{% endif %},
-              "host": "{{ platform_drive_grovedb_visualizer_host }}",
+              "host": "{{ private_ip }}",
               "port": {{ platform_drive_grovedb_visualizer_port }}
             },
             "tokioConsole": {
