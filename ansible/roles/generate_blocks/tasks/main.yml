@@ -8,7 +8,7 @@
   when: >
     (generate == 'blocks' and num_blocks is not defined) or
     (generate == 'balance' and target_balance is not defined) or
-    (generate == 'confirmations' and (txid_list is not defined or tx_source is not defined))
+    (generate == 'confirmations' and (txid_list is not defined or tx_source is not defined)) or
     (generate == 'spork_activation' and spork_name is not defined)
 
 - name: Specify which networks permit generating blocks
