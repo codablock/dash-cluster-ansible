@@ -28,14 +28,14 @@
     - SPORK_17_QUORUM_DKG_ENABLED
     - SPORK_19_CHAINLOCKS_ENABLED
     - SPORK_21_QUORUM_ALL_CONNECTED
-    - SPORK_24_TEST_EHF
+#    - SPORK_24_TEST_EHF
   when: not (active_sporks.stdout | from_json)[item]
   changed_when: spork_update.stdout == "success"
 
-- name: Activate EHF
-  ansible.builtin.include_role:
-    name: generate_blocks
-  vars:
-    generate: spork_activation
-    spork_name: SPORK_24_TEST_EHF
-  when: dash_network in ["devnet", "regtest"] and not (active_sporks.stdout | from_json)["SPORK_24_TEST_EHF"]
+#- name: Activate EHF
+#  ansible.builtin.include_role:
+#    name: generate_blocks
+#  vars:
+#    generate: spork_activation
+#    spork_name: SPORK_24_TEST_EHF
+#  when: dash_network in ["devnet", "regtest"] and not (active_sporks.stdout | from_json)["SPORK_24_TEST_EHF"]
