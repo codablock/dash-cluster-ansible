@@ -63,7 +63,13 @@ platform_drive_instant_lock_quorum_llmq_type:
 platform_drive_instant_lock_quorum_dkg_interval:
 platform_drive_instant_lock_quorum_active_signers:
 platform_drive_instant_lock_quorum_rotation:
-
+dashmate_core_rpc_dashmate_password:
+dashmate_core_rpc_dapi_password:
+dashmate_core_rpc_drive_consensus_password:
+dashmate_core_rpc_drive_check_tx_password:
+dashmate_core_rpc_tenderdash_password:
+platform_drive_grovedb_visualizer_enabled: false
+platform_drive_grovedb_visualizer_port: 8083
 
 # Unsafe params. Use only if you understand what you are doing.
 dashmate_platform_drive_tenderdash_consensus_unsafe_override_propose_timeout:

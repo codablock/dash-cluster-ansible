@@ -53,8 +53,50 @@
         "rpc": {
           "host": "127.0.0.1",
           "port": {{ dashd_rpc_port }},
-          "user": "{{ dashd_rpc_user }}",
-          "password": "{{ dashd_rpc_password }}",
+          "users": {
+            "{{ dashd_rpc_user }}": {
+              "password": "{{ dashd_rpc_password }}",
+              "whitelist": null,
+              "lowPriority": false
+            },
+            "dashmate": {
+              "password": "{{ dashmate_core_rpc_dashmate_password }}",
+              "whitelist": null,
+              "lowPriority": false
+            },
+            "dapi": {
+              "password": "{{ dashmate_core_rpc_dapi_password }}",
+              "whitelist": [
+                "getbestblockhash", "getblockhash", "sendrawtransaction", "getrawtransaction",
+                "getblockstats", "getmerkleblocks", "getrawtransactionmulti", "getrawmempool",
+                "getblockcount", "getbestchainlock", "getblock", "getblockheader", "getblockheaders",
+                "protxdiff", "getnetworkinfo", "getblockchaininfo", "mnsyncstatus", "masternodestatus"
+              ],
+              "lowPriority": true
+            },
+            "drive_consensus": {
+              "password": "{{ dashmate_core_rpc_drive_consensus_password }}",
+              "whitelist": [
+                "getbestchainlock", "getblockchaininfo", "getrawtransaction", "submitchainlock",
+                "verifychainlock", "protxlistdiff", "quorumlistextended", "quoruminfo",
+                "getassetunlockstatuses", "sendrawtransaction", "mnsyncstatus"
+              ],
+              "lowPriority": false
+            },
+            "drive_check_tx": {
+              "password": "{{ dashmate_core_rpc_drive_check_tx_password }}",
+              "whitelist": ["getrawtransaction"],
+              "lowPriority": true
+            },
+            "tenderdash": {
+              "password": "{{ dashmate_core_rpc_tenderdash_password }}",
+              "whitelist": [
+                "quoruminfo", "quorumverify", "quorumsign", "masternodestatus", "masternodelist",
+                "ping", "getnetworkinfo"
+              ],
+              "lowPriority": false
+            }
+          },
           "allowIps": [
             "{{ private_ip | ansible.utils.ipsubnet(16) }}",
             "127.0.0.0",
@@ -229,6 +271,11 @@
                 "format": "json",
                 "color": null
               }{% endif %}
+            },
+            "grovedbVisualizer": {
+              "enabled": {% if platform_drive_grovedb_visualizer_enabled %}true{% else %}false{% endif %},
+              "host": "{{ private_ip }}",
+              "port": {{ platform_drive_grovedb_visualizer_port }}
             },
             "tokioConsole": {
               "enabled": false,
