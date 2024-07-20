@@ -262,7 +262,7 @@ resource "aws_instance" "hp_masternode_amd" {
   count = var.hp_masternode_amd_count
 
   ami                  = data.aws_ami.ubuntu_amd.id
-  instance_type        = "m7.medium"
+  instance_type        = "m7a.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
   associate_public_ip_address = true
