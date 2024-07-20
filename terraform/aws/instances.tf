@@ -164,13 +164,14 @@ resource "aws_instance" "masternode_amd" {
   count = var.masternode_amd_count
 
   ami                  = data.aws_ami.ubuntu_amd.id
-  instance_type        = "t3.small"
+  instance_type        = "t3.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
     aws_security_group.dashd_public.id,
+    aws_security_group.hp_masternode.id
   ]
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
@@ -204,13 +205,14 @@ resource "aws_instance" "masternode_arm" {
   count = var.masternode_arm_count
 
   ami                  = data.aws_ami.ubuntu_arm.id
-  instance_type        = "t4g.small"
+  instance_type        = "t4g.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
 
   vpc_security_group_ids = [
     aws_security_group.default.id,
     aws_security_group.dashd_public.id,
+    aws_security_group.hp_masternode.id
   ]
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
@@ -260,7 +262,7 @@ resource "aws_instance" "hp_masternode_amd" {
   count = var.hp_masternode_amd_count
 
   ami                  = data.aws_ami.ubuntu_amd.id
-  instance_type        = "t3.medium"
+  instance_type        = "m7.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
   associate_public_ip_address = true
@@ -301,7 +303,7 @@ resource "aws_instance" "hp_masternode_arm" {
   count = var.hp_masternode_arm_count
 
   ami                  = data.aws_ami.ubuntu_arm.id
-  instance_type        = "t4g.medium"
+  instance_type        = "m7g.medium"
   key_name             = aws_key_pair.auth.id
   iam_instance_profile = aws_iam_instance_profile.monitoring.name
   associate_public_ip_address = true
