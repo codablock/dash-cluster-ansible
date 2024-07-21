@@ -96,6 +96,11 @@ dashd_zmq_port: 29998
 dashd_powtargetspacing: 150
 dashd_minimumdifficultyblocks: 4032
 
+dashd_devnet_llmq_chain_locks: llmq_devnet
+dashd_devnet_llmq_instant_send: llmq_devnet_dip0024
+dashd_devnet_llmq_platform: llmq_devnet_platform
+dashd_devnet_llmq_mnhf: llmq_devnet
+
 # Example spork address/privkey. Please provide your own spork key in network config:
 # dashd_sporkaddr:
 # dashd_sporkkey:

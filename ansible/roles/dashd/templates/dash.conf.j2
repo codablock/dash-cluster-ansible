@@ -92,10 +92,10 @@ sporkkey={{ dashd_sporkkey }}
 {% elif dash_network == 'testnet' %}
 [test]
 {% elif dash_network == 'devnet' %}
-llmqchainlocks=llmq_devnet
-llmqinstantsend=llmq_devnet
-llmqinstantsenddip0024=llmq_devnet_dip0024
-llmqplatform=llmq_devnet_platform
+llmqchainlocks={{ dashd_devnet_llmq_chain_locks }}
+llmqinstantsenddip0024={{ dashd_devnet_llmq_instant_send }}
+llmqplatform={{ dashd_devnet_llmq_platform }}
+llmqmnhf={{ dashd_devnet_llmq_mnhf }}
 
 [devnet]
 minimumdifficultyblocks={{ dashd_minimumdifficultyblocks }}
