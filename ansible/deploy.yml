@@ -1,77 +1,77 @@
-# ---
+---
 
-# # # Bootstrap
+# # Bootstrap
 
-# # - name: Remove latency on masternodes before deployment starts
-# #   hosts: masternodes
-# #   become: true
-# #   roles:
-# #     - remove_fake_latency
-
-# - name: Set up swap and aws environment vars
-#   hosts: all
-#   gather_facts: true
-#   become: true
-#   pre_tasks:
-#     - name: Check if inside AWS
-#       ansible.builtin.uri:
-#         url: http://169.254.169.254/latest/meta-data
-#         timeout: 2
-#       register: aws_uri_check
-#       failed_when: false
-#     - name: Set AWS environment variable
-#       ansible.builtin.set_fact:
-#         is_aws_environment: '{{ aws_uri_check.status == 200 }}'
-#   roles:
-#     - role: aws
-#       when: is_aws_environment
-#     - swap
-
-# - name: Setup VPN
-#   hosts: vpn
+# - name: Remove latency on masternodes before deployment starts
+#   hosts: masternodes
 #   become: true
 #   roles:
-#     - role: openvpn
-#       when: openvpn_enabled
-#       tags: vpn
+#     - remove_fake_latency
 
-# - name: Setup jq, Python, CWAgent and Docker
-#   hosts: all
-#   become: true
-#   pre_tasks:
-#     - name: Update apt cache and install jq
-#       ansible.builtin.apt:
-#         pkg:
-#           - jq
-#           - unzip
-#         update_cache: true
-#   vars:
-#     pip_package: python3-pip
-#     pip_install_packages:
-#       - name: docker
-#         version: "6.0.1"
-#       - name: docker-compose
-#         version: "1.29.2"
-#       - name: requests
-#         version: "2.31.0"
-#   roles:
-#     - geerlingguy.pip
-#     - role: geerlingguy.docker
-#       vars:
-#         docker_apt_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
-#         docker_install_compose: false
-#         docker_users:
-#           - ubuntu
-#     - docker_options
-#     - eternal_terminal
-#     - cwagent
+- name: Set up swap and aws environment vars
+  hosts: all
+  gather_facts: true
+  become: true
+  pre_tasks:
+    - name: Check if inside AWS
+      ansible.builtin.uri:
+        url: http://169.254.169.254/latest/meta-data
+        timeout: 2
+      register: aws_uri_check
+      failed_when: false
+    - name: Set AWS environment variable
+      ansible.builtin.set_fact:
+        is_aws_environment: '{{ aws_uri_check.status == 200 }}'
+  roles:
+    - role: aws
+      when: is_aws_environment
+    - swap
 
-# - name: Configure tcpdump
-#   hosts: all
-#   become: true
-#   roles:
-#     - role: tcpdumpd
-#       when: dashd_network_logging != 0
+- name: Setup VPN
+  hosts: vpn
+  become: true
+  roles:
+    - role: openvpn
+      when: openvpn_enabled
+      tags: vpn
+
+- name: Setup jq, Python, CWAgent and Docker
+  hosts: all
+  become: true
+  pre_tasks:
+    - name: Update apt cache and install jq
+      ansible.builtin.apt:
+        pkg:
+          - jq
+          - unzip
+        update_cache: true
+  vars:
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: docker
+        version: "6.0.1"
+      - name: docker-compose
+        version: "1.29.2"
+      - name: requests
+        version: "2.31.0"
+  roles:
+    - geerlingguy.pip
+    - role: geerlingguy.docker
+      vars:
+        docker_apt_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+        docker_install_compose: false
+        docker_users:
+          - ubuntu
+    - docker_options
+    - eternal_terminal
+    - cwagent
+
+- name: Configure tcpdump
+  hosts: all
+  become: true
+  roles:
+    - role: tcpdumpd
+      when: dashd_network_logging != 0
 
 - name: Setup logs
   hosts: logs_nodes
@@ -211,7 +211,7 @@
 # # Register masternodes and set sporks
 
 # - name: Register masternodes
-#   hosts: wallet_nodes
+#   hosts: wallet_nodesmasternodes
 #   become: true
 #   roles:
 #     - role: mn_init
@@ -224,19 +224,19 @@
 #     - role: mn_protx_config
 #       mnlist: "{{ masternodes }}"
 
-# - name: Register HP masternodes
-#   hosts: wallet_nodes
-#   become: true
-#   roles:
-#     - role: mn_init
-#       mnlist: "{{ hp_masternodes }}"
-#       funding_amount: "{{ masternode_collaterals.hpmn | int }}"
+- name: Register HP masternodes
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - role: mn_init
+      mnlist: "{{ hp_masternodes }}"
+      funding_amount: "{{ masternode_collaterals.hpmn | int }}"
 
-# - name: Update inventory with HPMN protx values
-#   hosts: wallet_nodes
-#   roles:
-#     - role: mn_protx_config
-#       mnlist: "{{ hp_masternodes }}"
+- name: Update inventory with HPMN protx values
+  hosts: wallet_nodes
+  roles:
+    - role: mn_protx_config
+      mnlist: "{{ hp_masternodes }}"
 
 
 # - name: Fund load tester nodes
@@ -270,22 +270,22 @@
 # #     - role: generate_proposals
 # #       when: governance_proposal_count > 0
 
-# - name: Set up core and platform on HP masternodes
-#   hosts: hp_masternodes
-#   become: true
-#   pre_tasks:
-#     - name: Check inventory for HP masternodes
-#       ansible.builtin.set_fact:
-#         node: "{{ hp_masternodes[inventory_hostname] }}"
-#       tags: always
-#       when: inventory_hostname in hp_masternodes
-#   roles:
-#     - role: dash_cli
-#     - role: dashmate
-#     - role: mn_status_report
-#     - role: elastic_beats
-#       core_container_name: core
-#       abci_logs_path: "{{ dashmate_logs_dir }}"
+- name: Set up core and platform on HP masternodes
+  hosts: hp_masternodes
+  become: true
+  pre_tasks:
+    - name: Check inventory for HP masternodes
+      ansible.builtin.set_fact:
+        node: "{{ hp_masternodes[inventory_hostname] }}"
+      tags: always
+      when: inventory_hostname in hp_masternodes
+  roles:
+    - role: dash_cli
+    - role: dashmate
+    - role: mn_status_report
+    - role: elastic_beats
+      core_container_name: core
+      abci_logs_path: "{{ dashmate_logs_dir }}"
 
 # - name: Set up protx diff script
 #   hosts: masternodes
