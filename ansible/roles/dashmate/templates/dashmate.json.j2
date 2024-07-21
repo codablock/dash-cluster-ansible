@@ -124,7 +124,13 @@
         "devnet": {
           "name": {% if dash_network == 'devnet' %}"{{ dash_devnet_name }}"{% else %}null{% endif %},
           "minimumDifficultyBlocks": {{ dashd_minimumdifficultyblocks }},
-          "powTargetSpacing": {{ dashd_powtargetspacing }}
+          "powTargetSpacing": {{ dashd_powtargetspacing }},
+          "llmq": {
+            "chainLocks": "{{ dashd_devnet_llmq_chain_locks }}",
+            "instantSend": "{{ dashd_devnet_llmq_instant_send }}",
+            "platform": "{{ dashd_devnet_llmq_platform }}",
+            "mnhf": "{{ dashd_devnet_llmq_mnhf }}"
+          }
         },
         "logIps": 0,
         "indexes": true,
