@@ -27,13 +27,13 @@
 #       when: is_aws_environment
 #     - swap
 
-# - name: Setup VPN
-#   hosts: vpn
-#   become: true
-#   roles:
-#     - role: openvpn
-#       when: openvpn_enabled
-#       tags: vpn
+- name: Setup VPN
+  hosts: vpn
+  become: true
+  roles:
+    - role: openvpn
+      when: openvpn_enabled
+      tags: vpn
 
 # - name: Setup jq, Python, CWAgent and Docker
 #   hosts: all
@@ -73,11 +73,11 @@
 #     - role: tcpdumpd
 #       when: dashd_network_logging != 0
 
-# - name: Setup logs
-#   hosts: logs_nodes
-#   become: true
-#   roles:
-#     - elastic_stack
+- name: Setup logs
+  hosts: logs_nodes
+  become: true
+  roles:
+    - elastic_stack
 
 # # - name: Setup load tester
 # #   hosts: load_test
@@ -86,22 +86,22 @@
 # #     - role: protobuf_compiler
 # #     - role: load_tool
 
-# - name: Setup metrics
-#   hosts: metrics
-#   become: true
-#   roles:
-#     - role: metrics
+- name: Setup metrics
+  hosts: metrics
+  become: true
+  roles:
+    - role: metrics
 
-# - name: Set up miners
-#   hosts: miners
-#   become: true
-#   roles:
-#     - role: dash_cli
-#     - role: dashd
-#       tags:
-#         - dashd
-#     - role: elastic_beats
-#       core_container_name: dashd
+- name: Set up miners
+  hosts: miners
+  become: true
+  roles:
+    - role: dash_cli
+    - role: dashd
+      tags:
+        - dashd
+    - role: elastic_beats
+      core_container_name: dashd
 
 # # - name: Set up mixers
 # #   hosts: mixer_nodes
@@ -114,27 +114,27 @@
 # #     - role: elastic_beats
 # #       core_container_name: dashd
 
-# - name: Set up core and tenderdash on seed nodes
-#   hosts: seed_nodes
-#   become: true
-#   pre_tasks:
-#     - name: Set node variables for seed nodes
-#       ansible.builtin.set_fact:
-#         node: "{{ seed_nodes[inventory_hostname] }}"
-#         mode: "seed"
-#       tags: always
-#       when: inventory_hostname in seed_nodes
-#   roles:
-#     - role: dash_cli
-#     - role: dashd
-#       dashd_listen: true
-#       dashd_zmq: true
-#       dashd_indexes: true
-#       tags:
-#         - dashd
-#     - role: tenderdash
-#     - role: elastic_beats
-#       core_container_name: dashd
+- name: Set up core and tenderdash on seed nodes
+  hosts: seed_nodes
+  become: true
+  pre_tasks:
+    - name: Set node variables for seed nodes
+      ansible.builtin.set_fact:
+        node: "{{ seed_nodes[inventory_hostname] }}"
+        mode: "seed"
+      tags: always
+      when: inventory_hostname in seed_nodes
+  roles:
+    - role: dash_cli
+    - role: dashd
+      dashd_listen: true
+      dashd_zmq: true
+      dashd_indexes: true
+      tags:
+        - dashd
+    - role: tenderdash
+    - role: elastic_beats
+      core_container_name: dashd
 
 # # - name: Set up core on masternodes
 # #   hosts: masternodes
@@ -164,19 +164,19 @@
 
 # # Start network
 
-# - name: Generate first block to leave IBD mode
-#   hosts: seed-1
-#   become: true
-#   roles:
-#     - role: generate_firstblock
-#       when: dash_network == "devnet" or dash_network == "regtest"
+- name: Generate first block to leave IBD mode
+  hosts: seed-1
+  become: true
+  roles:
+    - role: generate_firstblock
+      when: dash_network == "devnet" or dash_network == "regtest"
 
-# - name: Start miner
-#   hosts: miners
-#   become: true
-#   roles:
-#     - role: dashd_generate_miner
-#       when: dash_network != "mainnet"
+- name: Start miner
+  hosts: miners
+  become: true
+  roles:
+    - role: dashd_generate_miner
+      when: dash_network != "mainnet"
 
 # - name: Setup faucet and insight
 #   hosts: web
