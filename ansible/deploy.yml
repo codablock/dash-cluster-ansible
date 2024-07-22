@@ -92,16 +92,16 @@
 #   roles:
 #     - role: metrics
 
-# - name: Set up miners
-#   hosts: miners
-#   become: true
-#   roles:
-#     - role: dash_cli
-#     - role: dashd
-#       tags:
-#         - dashd
-#     - role: elastic_beats
-#       core_container_name: dashd
+- name: Set up miners
+  hosts: miners
+  become: true
+  roles:
+    - role: dash_cli
+    - role: dashd
+      tags:
+        - dashd
+    - role: elastic_beats
+      core_container_name: dashd
 
 # # # - name: Set up mixers
 # # #   hosts: mixer_nodes
@@ -114,27 +114,27 @@
 # # #     - role: elastic_beats
 # # #       core_container_name: dashd
 
-# - name: Set up core and tenderdash on seed nodes
-#   hosts: seed_nodes
-#   become: true
-#   pre_tasks:
-#     - name: Set node variables for seed nodes
-#       ansible.builtin.set_fact:
-#         node: "{{ seed_nodes[inventory_hostname] }}"
-#         mode: "seed"
-#       tags: always
-#       when: inventory_hostname in seed_nodes
-#   roles:
-#     - role: dash_cli
-#     - role: dashd
-#       dashd_listen: true
-#       dashd_zmq: true
-#       dashd_indexes: true
-#       tags:
-#         - dashd
-#     - role: tenderdash
-#     - role: elastic_beats
-#       core_container_name: dashd
+- name: Set up core and tenderdash on seed nodes
+  hosts: seed_nodes
+  become: true
+  pre_tasks:
+    - name: Set node variables for seed nodes
+      ansible.builtin.set_fact:
+        node: "{{ seed_nodes[inventory_hostname] }}"
+        mode: "seed"
+      tags: always
+      when: inventory_hostname in seed_nodes
+  roles:
+    - role: dash_cli
+    - role: dashd
+      dashd_listen: true
+      dashd_zmq: true
+      dashd_indexes: true
+      tags:
+        - dashd
+    - role: tenderdash
+    - role: elastic_beats
+      core_container_name: dashd
 
 # # # - name: Set up core on masternodes
 # # #   hosts: masternodes
@@ -178,35 +178,34 @@
 #     - role: dashd_generate_miner
 #       when: dash_network != "mainnet"
 
-# # - name: Setup faucet and insight
-# #   hosts: web
-# #   become: true
-# #   roles:
-# #     - multifaucet
-# #     - role: dash_cli
-# #     - role: dashd
-# #       dashd_indexes: true
-# #       dashd_zmq: true
-# #       dashd_listen: true
-# #     - insight
-# #     - role: elastic_beats
-# #       core_container_name: dashd
-# #   tags:
-# #     - web
+- name: Setup faucet and insight
+  hosts: web
+  become: true
+  roles:
+    - multifaucet
+    - role: dash_cli
+    - role: dashd
+      dashd_indexes: true
+      dashd_zmq: true
+      dashd_listen: true
+    - role: elastic_beats
+      core_container_name: dashd
+  tags:
+    - web
 
-# - name: Set up wallets
-#   hosts: wallet_nodes
-#   become: true
-#   roles:
-#     - role: dash_cli
-#     - role: dashd
-#       dashd_indexes: true
-#       dashd_zmq: true
-#       enable_wallet: true
-#       tags:
-#         - dashd
-#     - role: elastic_beats
-#       core_container_name: dashd
+- name: Set up wallets
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - role: dash_cli
+    - role: dashd
+      dashd_indexes: true
+      dashd_zmq: true
+      enable_wallet: true
+      tags:
+        - dashd
+    - role: elastic_beats
+      core_container_name: dashd
 
 # # # Register masternodes and set sporks
 
@@ -224,13 +223,13 @@
 # #     - role: mn_protx_config
 # #       mnlist: "{{ masternodes }}"
 
-- name: Register HP masternodes
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: mn_init
-      mnlist: "{{ hp_masternodes }}"
-      funding_amount: "{{ masternode_collaterals.hpmn | int }}"
+# - name: Register HP masternodes
+#   hosts: wallet_nodes
+#   become: true
+#   roles:
+#     - role: mn_init
+#       mnlist: "{{ hp_masternodes }}"
+#       funding_amount: "{{ masternode_collaterals.hpmn | int }}"
 
 # - name: Update inventory with HPMN protx values
 #   hosts: wallet_nodes
