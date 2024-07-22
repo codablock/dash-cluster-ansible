@@ -254,13 +254,13 @@
 # #         amount: "{{ load_tester_wallet_amount }}"
 
 
-- name: Activate sporks
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: activate_dashd_sporks
-      when: dash_network != "mainnet" and dash_network != "testnet"
-      delegate_to: '{{ play_hosts | first }}'
+# - name: Activate sporks
+#   hosts: wallet_nodes
+#   become: true
+#   roles:
+#     - role: activate_dashd_sporks
+#       when: dash_network != "mainnet" and dash_network != "testnet"
+#       delegate_to: '{{ play_hosts | first }}'
 
 # # # todo: partially working code causes errors in deploy, comment out for now and fix later
 # # # - name: Create governance proposals
@@ -270,22 +270,22 @@
 # # #     - role: generate_proposals
 # # #       when: governance_proposal_count > 0
 
-# - name: Set up core and platform on HP masternodes
-#   hosts: hp_masternodes
-#   become: true
-#   pre_tasks:
-#     - name: Check inventory for HP masternodes
-#       ansible.builtin.set_fact:
-#         node: "{{ hp_masternodes[inventory_hostname] }}"
-#       tags: always
-#       when: inventory_hostname in hp_masternodes
-#   roles:
-#     - role: dash_cli
-#     - role: dashmate
-#     - role: mn_status_report
-#     - role: elastic_beats
-#       core_container_name: core
-#       abci_logs_path: "{{ dashmate_logs_dir }}"
+- name: Set up core and platform on HP masternodes
+  hosts: hp_masternodes
+  become: true
+  pre_tasks:
+    - name: Check inventory for HP masternodes
+      ansible.builtin.set_fact:
+        node: "{{ hp_masternodes[inventory_hostname] }}"
+      tags: always
+      when: inventory_hostname in hp_masternodes
+  roles:
+    - role: dash_cli
+    - role: dashmate
+    - role: mn_status_report
+    - role: elastic_beats
+      core_container_name: core
+      abci_logs_path: "{{ dashmate_logs_dir }}"
 
 # # - name: Set up protx diff script
 # #   hosts: masternodes
