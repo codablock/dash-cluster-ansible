@@ -256,7 +256,7 @@
 # dashmate config is changed => restart all
 
 - name: Restart all dashmate services
-  ansible.builtin.command: "{{ dashmate_cmd }} restart --safe --verbose"
+  ansible.builtin.command: "{{ dashmate_cmd }} restart --force --verbose"
   become: true
   become_user: dashmate
   args:

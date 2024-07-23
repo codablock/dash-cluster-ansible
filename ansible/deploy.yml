@@ -223,13 +223,13 @@
 # # #     - role: mn_protx_config
 # # #       mnlist: "{{ masternodes }}"
 
-# # - name: Register HP masternodes
-# #   hosts: wallet_nodes
-# #   become: true
-# #   roles:
-# #     - role: mn_init
-# #       mnlist: "{{ hp_masternodes }}"
-# #       funding_amount: "{{ masternode_collaterals.hpmn | int }}"
+- name: Register HP masternodes
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - role: mn_init
+      mnlist: "{{ hp_masternodes }}"
+      funding_amount: "{{ masternode_collaterals.hpmn | int }}"
 
 # # - name: Update inventory with HPMN protx values
 # #   hosts: wallet_nodes
@@ -253,13 +253,13 @@
 # # #         amount: "{{ load_tester_wallet_amount }}"
 
 
-# # - name: Activate sporks
-# #   hosts: wallet_nodes
-# #   become: true
-# #   roles:
-# #     - role: activate_dashd_sporks
-# #       when: dash_network != "mainnet" and dash_network != "testnet"
-# #       delegate_to: '{{ play_hosts | first }}'
+# - name: Activate sporks
+#   hosts: wallet_nodes
+#   become: true
+#   roles:
+#     - role: activate_dashd_sporks
+#       when: dash_network != "mainnet" and dash_network != "testnet"
+#       delegate_to: '{{ play_hosts | first }}'
 
 # # # # todo: partially working code causes errors in deploy, comment out for now and fix later
 # # # # - name: Create governance proposals
