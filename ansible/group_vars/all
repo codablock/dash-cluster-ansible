@@ -4,16 +4,6 @@ evo_services: false
 
 node_environment: "production"
 
-# List of identities separated by comma
-platform_dpns_contract_id: ""
-platform_dpns_contract_block_height: ""
-platform_dpns_top_level_domain_identity: ""
-platform_dashpay_contract_id: ""
-platform_dashpay_contract_block_height: ""
-platform_feature_flags_contract_id: ""
-platform_feature_flags_contract_block_height: ""
-platform_feature_flags_top_level_identity: ""
-
 platform_initial_core_chain_locked_height: ""
 
 # Install OpenVPN
