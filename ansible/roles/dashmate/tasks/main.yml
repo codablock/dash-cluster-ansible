@@ -126,12 +126,10 @@
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_zerossl_id_result
   changed_when: dashmate_zerossl_id_result.rc == 0
-  when: dashmate_config_result.rc == 0
 
 - name: Set ZeroSSL certificate ID from config
   ansible.builtin.set_fact:
     dashmate_zerossl_config_certificate_id: "{{ dashmate_zerossl_id_result.stdout }}"
-  when: dashmate_config_result.rc == 0 and dashmate_zerossl_id_result.stdout != 'null'
 
 - name: Write dashmate config file
   vars:
