@@ -79,12 +79,12 @@
 # #   roles:
 # #     - elastic_stack
 
-- name: Setup load tester
-  hosts: load_test
-  become: true
-  roles:
-    - role: protobuf_compiler
-    - role: load_tool
+# - name: Setup load tester
+#   hosts: load_test
+#   become: true
+#   roles:
+#     - role: protobuf_compiler
+#     - role: load_tool
 
 # # - name: Setup metrics
 # #   hosts: metrics
@@ -178,20 +178,13 @@
 # #     - role: dashd_generate_miner
 # #       when: dash_network != "mainnet"
 
-# - name: Setup faucet and insight
-#   hosts: web
-#   become: true
-#   roles:
-#     - multifaucet
-#     - role: dash_cli
-#     - role: dashd
-#       dashd_indexes: true
-#       dashd_zmq: true
-#       dashd_listen: true
-#     - role: elastic_beats
-#       core_container_name: dashd
-#   tags:
-#     - web
+- name: Setup faucet and insight
+  hosts: web
+  become: true
+  roles:
+    - insight
+  tags:
+    - web
 
 # - name: Set up wallets
 #   hosts: wallet_nodes
