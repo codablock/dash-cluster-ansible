@@ -27,13 +27,13 @@
 # # #       when: is_aws_environment
 # # #     - swap
 
-# # - name: Setup VPN
-# #   hosts: vpn
-# #   become: true
-# #   roles:
-# #     - role: openvpn
-# #       when: openvpn_enabled
-# #       tags: vpn
+- name: Setup VPN
+  hosts: vpn
+  become: true
+  roles:
+    - role: openvpn
+      when: openvpn_enabled
+      tags: vpn
 
 # # # - name: Setup jq, Python, CWAgent and Docker
 # # #   hosts: all
@@ -73,11 +73,11 @@
 # # #     - role: tcpdumpd
 # # #       when: dashd_network_logging != 0
 
-# # - name: Setup logs
-# #   hosts: logs_nodes
-# #   become: true
-# #   roles:
-# #     - elastic_stack
+- name: Setup logs
+  hosts: logs_nodes
+  become: true
+  roles:
+    - elastic_stack
 
 # - name: Setup load tester
 #   hosts: load_test
@@ -164,12 +164,12 @@
 
 # # # # Start network
 
-# # - name: Generate first block to leave IBD mode
-# #   hosts: seed-1
-# #   become: true
-# #   roles:
-# #     - role: generate_firstblock
-# #       when: dash_network == "devnet" or dash_network == "regtest"
+- name: Generate first block to leave IBD mode
+  hosts: seed-1
+  become: true
+  roles:
+    - role: generate_firstblock
+      when: dash_network == "devnet" or dash_network == "regtest"
 
 - name: Start miner
   hosts: miners
