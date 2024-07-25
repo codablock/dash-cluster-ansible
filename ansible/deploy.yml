@@ -79,12 +79,12 @@
 # #   roles:
 # #     - elastic_stack
 
-# # # # - name: Setup load tester
-# # # #   hosts: load_test
-# # # #   become: true
-# # # #   roles:
-# # # #     - role: protobuf_compiler
-# # # #     - role: load_tool
+- name: Setup load tester
+  hosts: load_test
+  become: true
+  roles:
+    - role: protobuf_compiler
+    - role: load_tool
 
 # # - name: Setup metrics
 # #   hosts: metrics
@@ -269,22 +269,22 @@
 # # # #     - role: generate_proposals
 # # # #       when: governance_proposal_count > 0
 
-- name: Set up core and platform on HP masternodes
-  hosts: hp_masternodes
-  become: true
-  pre_tasks:
-    - name: Check inventory for HP masternodes
-      ansible.builtin.set_fact:
-        node: "{{ hp_masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in hp_masternodes
-  roles:
-    - role: dash_cli
-    - role: dashmate
-    - role: mn_status_report
-    - role: elastic_beats
-      core_container_name: core
-      abci_logs_path: "{{ dashmate_logs_dir }}"
+# - name: Set up core and platform on HP masternodes
+#   hosts: hp_masternodes
+#   become: true
+#   pre_tasks:
+#     - name: Check inventory for HP masternodes
+#       ansible.builtin.set_fact:
+#         node: "{{ hp_masternodes[inventory_hostname] }}"
+#       tags: always
+#       when: inventory_hostname in hp_masternodes
+#   roles:
+#     - role: dash_cli
+#     - role: dashmate
+#     - role: mn_status_report
+#     - role: elastic_beats
+#       core_container_name: core
+#       abci_logs_path: "{{ dashmate_logs_dir }}"
 
 # # - name: Set up protx diff script
 # #   hosts: masternodes
