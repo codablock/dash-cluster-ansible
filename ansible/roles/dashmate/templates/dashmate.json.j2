@@ -401,7 +401,6 @@
               "key": "{{ node.node_key.private_key }}"
             },
             "genesis": {
-              "genesis_time": "{{ genesis_time }}",
               "chain_id": "dash-{{ ( 'devnet-' + dash_devnet_name if dash_network == 'devnet' else dash_network ) if tenderdash_chain_id is not defined else tenderdash_chain_id }}",
               {%+ if platform_initial_core_chain_locked_height is defined and platform_initial_core_chain_locked_height != "" %}"initial_core_chain_locked_height": {{ platform_initial_core_chain_locked_height | int }},
               {% endif %}
