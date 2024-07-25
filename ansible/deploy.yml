@@ -178,11 +178,11 @@
 # #     - role: dashd_generate_miner
 # #       when: dash_network != "mainnet"
 
-- name: Setup faucet and insight
-  hosts: seed-1
-  become: true
-  roles:
-    - insight
+# - name: Setup faucet and insight
+#   hosts: seed-1
+#   become: true
+#   roles:
+#     - insight
 
 # - name: Set up wallets
 #   hosts: wallet_nodes
@@ -287,10 +287,10 @@
 # #     - role: remove_fake_latency
 # #       when: not masternode_network_latency
 
-# # - name: Generate dash.conf for configs repo
-# #   hosts: localhost
-# #   roles:
-# #     - dash-conf
+- name: Generate dash.conf for configs repo
+  hosts: localhost
+  roles:
+    - dash-conf
 
 # # - name: Clean up
 # #   hosts: all
