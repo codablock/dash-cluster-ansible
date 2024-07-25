@@ -1,4 +1,4 @@
-# # # ---
+---
 
 # # # # # Bootstrap
 
@@ -178,11 +178,21 @@
     - role: dashd_generate_miner
       when: dash_network != "mainnet"
 
-# - name: Setup faucet and insight
-#   hosts: seed-1
-#   become: true
-#   roles:
-#     - insight
+#- name: Setup faucet and insight
+#  hosts: web
+#  become: true
+#  roles:
+#    - multifaucet
+#    - role: dash_cli
+#    - role: dashd
+#      dashd_indexes: true
+#      dashd_zmq: true
+#      dashd_listen: true
+#    - insight
+#    - role: elastic_beats
+#      core_container_name: dashd
+#  tags:
+#    - web
 
 - name: Set up wallets
   hosts: wallet_nodes
@@ -270,7 +280,12 @@
       tags: always
       when: inventory_hostname in hp_masternodes
   roles:
+    - role: dash_cli
     - role: dashmate
+    - role: mn_status_report
+    - role: elastic_beats
+      core_container_name: core
+      abci_logs_path: "{{ dashmate_logs_dir }}"
 
 # # - name: Set up protx diff script
 # #   hosts: masternodes
