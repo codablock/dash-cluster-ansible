@@ -238,55 +238,55 @@
 # start ALL when (core is down and platform is down)
 # start platform when (core is up and platform is down)
 
-# Start all if everything is stopped (not started yet)
-- name: Start all dashmate services
-  ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  register: dashmate_start_all
-  when:
-    - not is_core_started
-    - not is_platform_started
-  changed_when: dashmate_start_all.rc == 0
+# # Start all if everything is stopped (not started yet)
+# - name: Start all dashmate services
+#   ansible.builtin.command: "{{ dashmate_cmd }} start --verbose"
+#   become: true
+#   become_user: dashmate
+#   args:
+#     chdir: '{{ dashmate_cwd }}'
+#   register: dashmate_start_all
+#   when:
+#     - not is_core_started
+#     - not is_platform_started
+#   changed_when: dashmate_start_all.rc == 0
 
 # Restart logic
 # dashmate version is changed => restart all
 # dashmate config is changed => restart all
 
-- name: Restart all dashmate services
-  ansible.builtin.command: "{{ dashmate_cmd }} restart --force --verbose"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  register: dashmate_restart_all
-  when:
-    - not dashmate_start_all.changed
-    - is_dashmate_package_changed or is_dashmate_config_changed
-  changed_when: dashmate_restart_all.rc == 0
+# - name: Restart all dashmate services
+#   ansible.builtin.command: "{{ dashmate_cmd }} restart --force --verbose"
+#   become: true
+#   become_user: dashmate
+#   args:
+#     chdir: '{{ dashmate_cwd }}'
+#   register: dashmate_restart_all
+#   when:
+#     - not dashmate_start_all.changed
+#     - is_dashmate_package_changed or is_dashmate_config_changed
+#   changed_when: dashmate_restart_all.rc == 0
 
-# Force start logic
-# Force start is equivalent to `docker compose up` and will replace services that have changed
+# # Force start logic
+# # Force start is equivalent to `docker compose up` and will replace services that have changed
 
-- name: Start not started services and replace updated services
-  ansible.builtin.command: "{{ dashmate_cmd }} start --force --verbose"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  register: dashmate_force_start
-  when:
-    - not dashmate_start_all.changed
-    - not dashmate_restart_all.changed
-  changed_when: dashmate_force_start.rc == 0
+# - name: Start not started services and replace updated services
+#   ansible.builtin.command: "{{ dashmate_cmd }} start --force --verbose"
+#   become: true
+#   become_user: dashmate
+#   args:
+#     chdir: '{{ dashmate_cwd }}'
+#   register: dashmate_force_start
+#   when:
+#     - not dashmate_start_all.changed
+#     - not dashmate_restart_all.changed
+#   changed_when: dashmate_force_start.rc == 0
 
-- name: Disable dashmate helper build
-  ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.build.enabled false"
-  become: true
-  become_user: dashmate
-  register: build_dashmate_helper
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  changed_when: build_dashmate_helper.rc == 0
+# - name: Disable dashmate helper build
+#   ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.build.enabled false"
+#   become: true
+#   become_user: dashmate
+#   register: build_dashmate_helper
+#   args:
+#     chdir: '{{ dashmate_cwd }}'
+#   changed_when: build_dashmate_helper.rc == 0
