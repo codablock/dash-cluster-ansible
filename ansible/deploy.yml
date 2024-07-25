@@ -182,7 +182,15 @@
   hosts: web
   become: true
   roles:
+    - multifaucet
+    - role: dash_cli
+    - role: dashd
+      dashd_indexes: true
+      dashd_zmq: true
+      dashd_listen: true
     - insight
+    - role: elastic_beats
+      core_container_name: dashd
   tags:
     - web
 
