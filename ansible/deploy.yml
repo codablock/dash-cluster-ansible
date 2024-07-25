@@ -260,17 +260,17 @@
 # # # #     - role: generate_proposals
 # # # #       when: governance_proposal_count > 0
 
-# - name: Set up core and platform on HP masternodes
-#   hosts: hp_masternodes
-#   become: true
-#   pre_tasks:
-#     - name: Check inventory for HP masternodes
-#       ansible.builtin.set_fact:
-#         node: "{{ hp_masternodes[inventory_hostname] }}"
-#       tags: always
-#       when: inventory_hostname in hp_masternodes
-#   roles:
-#     - role: dashmate
+- name: Set up core and platform on HP masternodes
+  hosts: hp_masternodes
+  become: true
+  pre_tasks:
+    - name: Check inventory for HP masternodes
+      ansible.builtin.set_fact:
+        node: "{{ hp_masternodes[inventory_hostname] }}"
+      tags: always
+      when: inventory_hostname in hp_masternodes
+  roles:
+    - role: dashmate
 
 # # - name: Set up protx diff script
 # #   hosts: masternodes
@@ -287,10 +287,10 @@
 # #     - role: remove_fake_latency
 # #       when: not masternode_network_latency
 
-- name: Generate dash.conf for configs repo
-  hosts: localhost
-  roles:
-    - dash-conf
+# - name: Generate dash.conf for configs repo
+#   hosts: localhost
+#   roles:
+#     - dash-conf
 
 # # - name: Clean up
 # #   hosts: all
