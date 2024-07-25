@@ -178,21 +178,21 @@
 # #     - role: dashd_generate_miner
 # #       when: dash_network != "mainnet"
 
-- name: Setup faucet and insight
-  hosts: web
-  become: true
-  roles:
-    - multifaucet
-    - role: dash_cli
-    - role: dashd
-      dashd_indexes: true
-      dashd_zmq: true
-      dashd_listen: true
-    - insight
-    - role: elastic_beats
-      core_container_name: dashd
-  tags:
-    - web
+# - name: Setup faucet and insight
+#   hosts: web
+#   become: true
+#   roles:
+#     - multifaucet
+#     - role: dash_cli
+#     - role: dashd
+#       dashd_indexes: true
+#       dashd_zmq: true
+#       dashd_listen: true
+#     - insight
+#     - role: elastic_beats
+#       core_container_name: dashd
+#   tags:
+#     - web
 
 # - name: Set up wallets
 #   hosts: wallet_nodes
@@ -224,13 +224,13 @@
 # # #     - role: mn_protx_config
 # # #       mnlist: "{{ masternodes }}"
 
-# - name: Register HP masternodes
-#   hosts: wallet_nodes
-#   become: true
-#   roles:
-#     - role: mn_init
-#       mnlist: "{{ hp_masternodes }}"
-#       funding_amount: "{{ masternode_collaterals.hpmn | int }}"
+- name: Register HP masternodes
+  hosts: wallet_nodes
+  become: true
+  roles:
+    - role: mn_init
+      mnlist: "{{ hp_masternodes }}"
+      funding_amount: "{{ masternode_collaterals.hpmn | int }}"
 
 # # - name: Update inventory with HPMN protx values
 # #   hosts: wallet_nodes
