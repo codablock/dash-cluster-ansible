@@ -265,7 +265,7 @@
 
 - name: Print chunks info
   debug:
-    msg: "Restart all services by {{ restart_chunk_size}} in {{ host_chunks | length }} chunks"
+    msg: "Split {{ play_hosts | length }} into {{ host_chunks | length }} chunks to restart all services"
   run_once: true
 
 - name: Restart all dashmate services by chunks

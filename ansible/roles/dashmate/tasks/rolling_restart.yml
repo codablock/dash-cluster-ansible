@@ -9,22 +9,6 @@
   register: dashmate_restart_all
   delegate_to: "{{ item }}"
   with_items: "{{ current_chunk }}"
-#  environment:
-#    ANSIBLE_ASYNC_DIR: "/home/dashmate/.ansible_async"
-#
-#- name: Wait for restart complete
-#  async_status:
-#    jid: "{{ item.ansible_job_id }}"
-#  register: job_result
-#  until: job_result.finished
-#  retries: 30
-#  delay: 10
-#  with_items: "{{ dashmate_restart_all.results }}"
-#  when: item.ansible_job_id is defined
-#  delegate_to: localhost
-#  run_once: true
-#  environment:
-#    ANSIBLE_ASYNC_DIR: "/home/dashmate/.ansible_async"
 
 - name: Print progress
   debug:
