@@ -1,118 +1,118 @@
----
+# ---
 
-# Bootstrap
+# # Bootstrap
 
-- name: Remove latency on masternodes before deployment starts
-  hosts: masternodes
-  become: true
-  roles:
-    - remove_fake_latency
+# - name: Remove latency on masternodes before deployment starts
+#   hosts: masternodes
+#   become: true
+#   roles:
+#     - remove_fake_latency
 
-- name: Set up swap and aws environment vars
-  hosts: all
-  gather_facts: true
-  become: true
-  pre_tasks:
-    - name: Check if inside AWS
-      ansible.builtin.uri:
-        url: http://169.254.169.254/latest/meta-data
-        timeout: 2
-      register: aws_uri_check
-      failed_when: false
-    - name: Set AWS environment variable
-      ansible.builtin.set_fact:
-        is_aws_environment: '{{ aws_uri_check.status == 200 }}'
-  roles:
-    - role: aws
-      when: is_aws_environment
-    - swap
+# - name: Set up swap and aws environment vars
+#   hosts: all
+#   gather_facts: true
+#   become: true
+#   pre_tasks:
+#     - name: Check if inside AWS
+#       ansible.builtin.uri:
+#         url: http://169.254.169.254/latest/meta-data
+#         timeout: 2
+#       register: aws_uri_check
+#       failed_when: false
+#     - name: Set AWS environment variable
+#       ansible.builtin.set_fact:
+#         is_aws_environment: '{{ aws_uri_check.status == 200 }}'
+#   roles:
+#     - role: aws
+#       when: is_aws_environment
+#     - swap
 
-- name: Setup VPN
-  hosts: vpn
-  become: true
-  roles:
-    - role: openvpn
-      when: openvpn_enabled
-      tags: vpn
+# - name: Setup VPN
+#   hosts: vpn
+#   become: true
+#   roles:
+#     - role: openvpn
+#       when: openvpn_enabled
+#       tags: vpn
 
-- name: Setup jq, Python, CWAgent and Docker
-  hosts: all
-  become: true
-  pre_tasks:
-    - name: Update apt cache and install jq
-      ansible.builtin.apt:
-        pkg:
-          - jq
-          - unzip
-        update_cache: true
-  vars:
-    pip_package: python3-pip
-    pip_install_packages:
-      - name: docker
-        version: "6.0.1"
-      - name: docker-compose
-        version: "1.29.2"
-      - name: requests
-        version: "2.31.0"
-  roles:
-    - geerlingguy.pip
-    - role: geerlingguy.docker
-      vars:
-        docker_apt_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
-        docker_install_compose: false
-        docker_users:
-          - ubuntu
-    - docker_options
-    - eternal_terminal
-    - cwagent
+# - name: Setup jq, Python, CWAgent and Docker
+#   hosts: all
+#   become: true
+#   pre_tasks:
+#     - name: Update apt cache and install jq
+#       ansible.builtin.apt:
+#         pkg:
+#           - jq
+#           - unzip
+#         update_cache: true
+#   vars:
+#     pip_package: python3-pip
+#     pip_install_packages:
+#       - name: docker
+#         version: "6.0.1"
+#       - name: docker-compose
+#         version: "1.29.2"
+#       - name: requests
+#         version: "2.31.0"
+#   roles:
+#     - geerlingguy.pip
+#     - role: geerlingguy.docker
+#       vars:
+#         docker_apt_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+#         docker_install_compose: false
+#         docker_users:
+#           - ubuntu
+#     - docker_options
+#     - eternal_terminal
+#     - cwagent
 
-- name: Configure tcpdump
-  hosts: all
-  become: true
-  roles:
-    - role: tcpdumpd
-      when: dashd_network_logging != 0
+# - name: Configure tcpdump
+#   hosts: all
+#   become: true
+#   roles:
+#     - role: tcpdumpd
+#       when: dashd_network_logging != 0
 
-- name: Setup logs
-  hosts: logs_nodes
-  become: true
-  roles:
-    - elastic_stack
+# - name: Setup logs
+#   hosts: logs_nodes
+#   become: true
+#   roles:
+#     - elastic_stack
 
-- name: Setup load tester
-  hosts: load_test
-  become: true
-  roles:
-    - role: protobuf_compiler
-    - role: load_tool
+# - name: Setup load tester
+#   hosts: load_test
+#   become: true
+#   roles:
+#     - role: protobuf_compiler
+#     - role: load_tool
 
-- name: Setup metrics
-  hosts: metrics
-  become: true
-  roles:
-    - role: metrics
+# - name: Setup metrics
+#   hosts: metrics
+#   become: true
+#   roles:
+#     - role: metrics
 
-- name: Set up miners
-  hosts: miners
-  become: true
-  roles:
-    - role: dash_cli
-    - role: dashd
-      tags:
-        - dashd
-    - role: elastic_beats
-      core_container_name: dashd
+# - name: Set up miners
+#   hosts: miners
+#   become: true
+#   roles:
+#     - role: dash_cli
+#     - role: dashd
+#       tags:
+#         - dashd
+#     - role: elastic_beats
+#       core_container_name: dashd
 
-- name: Set up mixers
-  hosts: mixer_nodes
-  become: true
-  roles:
-    - role: dash_cli
-    - role: dashd
-      tags:
-        - dashd
-    - role: elastic_beats
-      core_container_name: dashd
+# - name: Set up mixers
+#   hosts: mixer_nodes
+#   become: true
+#   roles:
+#     - role: dash_cli
+#     - role: dashd
+#       tags:
+#         - dashd
+#     - role: elastic_beats
+#       core_container_name: dashd
 
 - name: Set up core and tenderdash on seed nodes
   hosts: seed_nodes
@@ -125,198 +125,189 @@
       tags: always
       when: inventory_hostname in seed_nodes
   roles:
-    - role: dash_cli
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
     - role: tenderdash
-    - role: elastic_beats
-      core_container_name: dashd
 
-- name: Set up core on masternodes
-  hosts: masternodes
-  become: true
-  pre_tasks:
-    - name: Check inventory for masternodes
-      ansible.builtin.set_fact:
-        masternode: "{{ masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in masternodes
-    - name: Fail if no masternodes present
-      ansible.builtin.fail:
-        msg: Masternode not defined in network config
-      when: masternode is not defined
-  roles:
-    - role: dash_cli
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
-    - mn_status_report
-    - role: elastic_beats
-      core_container_name: dashd
+# - name: Set up core on masternodes
+#   hosts: masternodes
+#   become: true
+#   pre_tasks:
+#     - name: Check inventory for masternodes
+#       ansible.builtin.set_fact:
+#         masternode: "{{ masternodes[inventory_hostname] }}"
+#       tags: always
+#       when: inventory_hostname in masternodes
+#     - name: Fail if no masternodes present
+#       ansible.builtin.fail:
+#         msg: Masternode not defined in network config
+#       when: masternode is not defined
+#   roles:
+#     - role: dash_cli
+#     - role: dashd
+#       dashd_listen: true
+#       dashd_zmq: true
+#       dashd_indexes: true
+#       tags:
+#         - dashd
+#     - mn_status_report
+#     - role: elastic_beats
+#       core_container_name: dashd
 
 
-# Start network
+# # Start network
 
-- name: Generate first block to leave IBD mode
-  hosts: seed-1
-  become: true
-  roles:
-    - role: generate_firstblock
-      when: dash_network == "devnet" or dash_network == "regtest"
+# - name: Generate first block to leave IBD mode
+#   hosts: seed-1
+#   become: true
+#   roles:
+#     - role: generate_firstblock
+#       when: dash_network == "devnet" or dash_network == "regtest"
 
-- name: Start miner
-  hosts: miners
-  become: true
-  roles:
-    - role: dashd_generate_miner
-      when: dash_network != "mainnet"
+# - name: Start miner
+#   hosts: miners
+#   become: true
+#   roles:
+#     - role: dashd_generate_miner
+#       when: dash_network != "mainnet"
 
-- name: Setup faucet and insight
-  hosts: web
-  become: true
-  roles:
-    - multifaucet
-    - role: dash_cli
-    - role: dashd
-      dashd_indexes: true
-      dashd_zmq: true
-      dashd_listen: true
-    - insight
-    - role: elastic_beats
-      core_container_name: dashd
-  tags:
-    - web
+# - name: Setup faucet and insight
+#   hosts: web
+#   become: true
+#   roles:
+#     - multifaucet
+#     - role: dash_cli
+#     - role: dashd
+#       dashd_indexes: true
+#       dashd_zmq: true
+#       dashd_listen: true
+#     - insight
+#     - role: elastic_beats
+#       core_container_name: dashd
+#   tags:
+#     - web
 
-- name: Set up wallets
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: dash_cli
-    - role: dashd
-      dashd_indexes: true
-      dashd_zmq: true
-      enable_wallet: true
-      tags:
-        - dashd
-    - role: elastic_beats
-      core_container_name: dashd
-
-# Register masternodes and set sporks
-
-- name: Register masternodes
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: mn_init
-      mnlist: "{{ masternodes }}"
-      funding_amount: "{{ masternode_collaterals.mn | int }}"
-
-- name: Update inventory with protx values
-  hosts: wallet_nodes
-  roles:
-    - role: mn_protx_config
-      mnlist: "{{ masternodes }}"
-
-- name: Register HP masternodes
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: mn_init
-      mnlist: "{{ hp_masternodes }}"
-      funding_amount: "{{ masternode_collaterals.hpmn | int }}"
-
-- name: Update inventory with HPMN protx values
-  hosts: wallet_nodes
-  roles:
-    - role: mn_protx_config
-      mnlist: "{{ hp_masternodes }}"
-
-
-- name: Fund load tester nodes
-  hosts: wallet_nodes
-  become: true
-  tasks:
-    - name: Extract load tester addresses
-      ansible.builtin.set_fact:
-        load_tester_addresses: "{{ load_testers.values() | map(attribute='wallet.address') | list }}"
-
-    - name: Include funding for load testers
-      ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
-      vars:
-        payment_targets: "{{ load_tester_addresses }}"
-        amount: "{{ load_tester_wallet_amount }}"
-
-
-- name: Activate sporks
-  hosts: wallet_nodes
-  become: true
-  roles:
-    - role: activate_dashd_sporks
-      when: dash_network != "mainnet" and dash_network != "testnet"
-      delegate_to: '{{ play_hosts | first }}'
-
-# todo: partially working code causes errors in deploy, comment out for now and fix later
-# - name: Create governance proposals
+# - name: Set up wallets
 #   hosts: wallet_nodes
 #   become: true
 #   roles:
-#     - role: generate_proposals
-#       when: governance_proposal_count > 0
+#     - role: dash_cli
+#     - role: dashd
+#       dashd_indexes: true
+#       dashd_zmq: true
+#       enable_wallet: true
+#       tags:
+#         - dashd
+#     - role: elastic_beats
+#       core_container_name: dashd
 
-- name: Set up core and platform on HP masternodes
-  hosts: hp_masternodes
-  become: true
-  pre_tasks:
-    - name: Check inventory for HP masternodes
-      ansible.builtin.set_fact:
-        node: "{{ hp_masternodes[inventory_hostname] }}"
-      tags: always
-      when: inventory_hostname in hp_masternodes
-  roles:
-    - role: dash_cli
-    - role: dashmate
-    - role: mn_status_report
-    - role: elastic_beats
-      core_container_name: core
-      abci_logs_path: "{{ dashmate_logs_dir }}"
+# # Register masternodes and set sporks
 
-- name: Set up protx diff script
-  hosts: masternodes
-  become: true
-  roles:
-    - role: mn_protx_diff
+# - name: Register masternodes
+#   hosts: wallet_nodes
+#   become: true
+#   roles:
+#     - role: mn_init
+#       mnlist: "{{ masternodes }}"
+#       funding_amount: "{{ masternode_collaterals.mn | int }}"
 
-- name: Set up fake latency on masternodes
-  hosts: masternodes
-  become: true
-  roles:
-    - role: add_fake_latency
-      when: masternode_network_latency
-    - role: remove_fake_latency
-      when: not masternode_network_latency
+# - name: Update inventory with protx values
+#   hosts: wallet_nodes
+#   roles:
+#     - role: mn_protx_config
+#       mnlist: "{{ masternodes }}"
 
-- name: Generate dash.conf for configs repo
-  hosts: localhost
-  roles:
-    - dash-conf
+# - name: Register HP masternodes
+#   hosts: wallet_nodes
+#   become: true
+#   roles:
+#     - role: mn_init
+#       mnlist: "{{ hp_masternodes }}"
+#       funding_amount: "{{ masternode_collaterals.hpmn | int }}"
 
-- name: Clean up
-  hosts: all
-  become: true
-  tasks:
-    - name: Prune unused Docker images
-      community.docker.docker_prune:
-        containers: true
-        images: true
-        images_filters:
-          dangling: false
-        networks: true
-        volumes: false
-        builder_cache: true
+# - name: Update inventory with HPMN protx values
+#   hosts: wallet_nodes
+#   roles:
+#     - role: mn_protx_config
+#       mnlist: "{{ hp_masternodes }}"
+
+
+# - name: Fund load tester nodes
+#   hosts: wallet_nodes
+#   become: true
+#   tasks:
+#     - name: Extract load tester addresses
+#       ansible.builtin.set_fact:
+#         load_tester_addresses: "{{ load_testers.values() | map(attribute='wallet.address') | list }}"
+
+#     - name: Include funding for load testers
+#       ansible.builtin.include_tasks: ./roles/mn_fund_collateral/tasks/fund_collateral.yml
+#       vars:
+#         payment_targets: "{{ load_tester_addresses }}"
+#         amount: "{{ load_tester_wallet_amount }}"
+
+
+# - name: Activate sporks
+#   hosts: wallet_nodes
+#   become: true
+#   roles:
+#     - role: activate_dashd_sporks
+#       when: dash_network != "mainnet" and dash_network != "testnet"
+#       delegate_to: '{{ play_hosts | first }}'
+
+# # todo: partially working code causes errors in deploy, comment out for now and fix later
+# # - name: Create governance proposals
+# #   hosts: wallet_nodes
+# #   become: true
+# #   roles:
+# #     - role: generate_proposals
+# #       when: governance_proposal_count > 0
+
+# - name: Set up core and platform on HP masternodes
+#   hosts: hp_masternodes
+#   become: true
+#   pre_tasks:
+#     - name: Check inventory for HP masternodes
+#       ansible.builtin.set_fact:
+#         node: "{{ hp_masternodes[inventory_hostname] }}"
+#       tags: always
+#       when: inventory_hostname in hp_masternodes
+#   roles:
+#     - role: dash_cli
+#     - role: dashmate
+#     - role: mn_status_report
+#     - role: elastic_beats
+#       core_container_name: core
+#       abci_logs_path: "{{ dashmate_logs_dir }}"
+
+# - name: Set up protx diff script
+#   hosts: masternodes
+#   become: true
+#   roles:
+#     - role: mn_protx_diff
+
+# - name: Set up fake latency on masternodes
+#   hosts: masternodes
+#   become: true
+#   roles:
+#     - role: add_fake_latency
+#       when: masternode_network_latency
+#     - role: remove_fake_latency
+#       when: not masternode_network_latency
+
+# - name: Generate dash.conf for configs repo
+#   hosts: localhost
+#   roles:
+#     - dash-conf
+
+# - name: Clean up
+#   hosts: all
+#   become: true
+#   tasks:
+#     - name: Prune unused Docker images
+#       community.docker.docker_prune:
+#         containers: true
+#         images: true
+#         images_filters:
+#           dangling: false
+#         networks: true
+#         volumes: false
+#         builder_cache: true
