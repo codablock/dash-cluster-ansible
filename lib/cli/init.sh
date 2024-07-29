@@ -1,6 +1,12 @@
 # Validate network name
 
-networks=("regtest testnet devnet mainnet")
+NETWORK_NAME=$1
+networks=("regtest" "testnet" "devnet" "mainnet" "mainnet-support")
+
+print_error() {
+    echo "$1" >&2
+    exit 1
+}
 
 if grep -q "devnet-" <<< "$NETWORK_NAME"; then
     NETWORK="devnet"
