@@ -276,3 +276,9 @@ variable "mixer_size" {
   description = "Size of the mixer disk in GB"
   default     = "40"
 }
+
+variable "grovedb_visualizer_port" {
+  description = "GroveDB visualizer port"
+  default     = "8083"
+}
+
