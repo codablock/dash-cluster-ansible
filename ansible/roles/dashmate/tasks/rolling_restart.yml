@@ -1,0 +1,21 @@
+---
+
+- name: Restart all dashmate services for current chunk
+  ansible.builtin.command: "{{ dashmate_cmd }} restart --safe --verbose"
+  become: true
+  become_user: dashmate
+  args:
+    chdir: '{{ dashmate_cwd }}'
+  register: dashmate_restart_all
+  changed_when: dashmate_restart_all.rc == 0
+  delegate_to: "{{ item }}"
+  with_items: "{{ current_chunk }}"
+
+- name: Print progress
+  ansible.builtin.debug:
+    msg: "Restarted chunk {{ current_chunk_index + 1 }} of {{ host_chunks | length }}"
+
+- name: Wait for delay before restarting next chunk
+  ansible.builtin.pause:
+    minutes: "{{ restart_delay_minutes }}"
+  when: current_chunk_index + 1 < host_chunks|length
