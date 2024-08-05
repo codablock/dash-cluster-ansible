@@ -256,7 +256,7 @@
 # dashmate config is changed => restart all
 
 - name: Create host chunks to restart
-  set_fact:
+  ansible.builtin.set_fact:
     host_chunks: "{{ play_hosts | batch(restart_chunk_size) }}"
   when:
     - not dashmate_start_all.changed
@@ -264,7 +264,7 @@
   run_once: true
 
 - name: Print chunks info
-  debug:
+  ansible.builtin.debug:
     msg: "Split {{ play_hosts | length }} into {{ host_chunks | length }} chunks to restart all services"
   when:
     - not dashmate_start_all.changed
