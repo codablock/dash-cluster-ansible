@@ -255,17 +255,33 @@
 # dashmate version is changed => restart all
 # dashmate config is changed => restart all
 
-- name: Restart all dashmate services
-  ansible.builtin.command: "{{ dashmate_cmd }} restart --safe --verbose"
-  become: true
-  become_user: dashmate
-  args:
-    chdir: '{{ dashmate_cwd }}'
-  register: dashmate_restart_all
+- name: Create host chunks to restart
+  set_fact:
+    host_chunks: "{{ play_hosts | batch(restart_chunk_size) }}"
   when:
     - not dashmate_start_all.changed
     - is_dashmate_package_changed or is_dashmate_config_changed
-  changed_when: dashmate_restart_all.rc == 0
+  run_once: true
+
+- name: Print chunks info
+  debug:
+    msg: "Split {{ play_hosts | length }} into {{ host_chunks | length }} chunks to restart all services"
+  when:
+    - not dashmate_start_all.changed
+    - is_dashmate_package_changed or is_dashmate_config_changed
+  run_once: true
+
+- name: Restart all dashmate services by chunks
+  include_tasks: rolling_restart.yml
+  loop: "{{ host_chunks }}"
+  loop_control:
+    loop_var: current_chunk
+    index_var: current_chunk_index
+    label: "{{ current_chunk }}"
+  when:
+    - not dashmate_start_all.changed
+    - is_dashmate_package_changed or is_dashmate_config_changed
+  run_once: true
 
 # Force start logic
 # Force start is equivalent to `docker compose up` and will replace services that have changed
