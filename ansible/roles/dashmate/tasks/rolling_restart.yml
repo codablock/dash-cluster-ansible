@@ -11,10 +11,10 @@
   with_items: "{{ current_chunk }}"
 
 - name: Print progress
-  debug:
+  ansible.builtin.debug:
     msg: "Restarted chunk {{ current_chunk_index + 1 }} of {{ host_chunks | length }}"
 
 - name: Wait for delay before restarting next chunk
-  pause:
+  ansible.builtin.pause:
     minutes: "{{ restart_delay_minutes }}"
   when: current_chunk_index + 1 < host_chunks|length
