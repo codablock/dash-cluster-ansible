@@ -302,7 +302,7 @@ resource "aws_security_group" "hp_masternode" {
     description = "GroveDB visualizer"
 
     cidr_blocks = [
-      cidr_blocks = ["10.0.0.0/16"]
+      "10.0.0.0/16",
     ]
   }
 
@@ -336,7 +336,7 @@ resource "aws_security_group" "hp_masternode" {
     to_port     = 9090
     protocol    = "tcp"
     description = "Internal service on port 9090"
-    cidr_blocks = ["10.0.0.0/16"]  
+    cidr_blocks = ["10.0.0.0/16"]
  }
 
 # Add ingress rule for port 9102
@@ -345,7 +345,7 @@ resource "aws_security_group" "hp_masternode" {
     to_port     = 9102
     protocol    = "tcp"
     description = "Internal service on port 9102"
-    cidr_blocks = ["10.0.0.0/16"] 
+    cidr_blocks = ["10.0.0.0/16"]
   }
 
  # Add ingress rule for port 29090
@@ -354,10 +354,10 @@ resource "aws_security_group" "hp_masternode" {
     to_port     = 29090
     protocol    = "tcp"
     description = "Internal service on port 9102"
-    cidr_blocks = ["10.0.0.0/16"] 
+    cidr_blocks = ["10.0.0.0/16"]
   }
 
- 
+
 
 
   # Tendermint RPC
