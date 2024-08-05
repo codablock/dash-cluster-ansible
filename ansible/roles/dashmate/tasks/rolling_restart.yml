@@ -7,6 +7,7 @@
   args:
     chdir: '{{ dashmate_cwd }}'
   register: dashmate_restart_all
+  changed_when: dashmate_restart_all.rc == 0
   delegate_to: "{{ item }}"
   with_items: "{{ current_chunk }}"
 
