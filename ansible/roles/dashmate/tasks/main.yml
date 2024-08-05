@@ -272,7 +272,7 @@
   run_once: true
 
 - name: Restart all dashmate services by chunks
-  include_tasks: rolling_restart.yml
+  ansible.builtin.include_tasks: rolling_restart.yml
   loop: "{{ host_chunks }}"
   loop_control:
     loop_var: current_chunk
