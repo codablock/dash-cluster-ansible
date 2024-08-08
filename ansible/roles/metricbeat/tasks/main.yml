@@ -58,7 +58,8 @@
             query('inventory_hostnames', 'logs_nodes') |
             map('extract', hostvars, ['private_ip']) |
             map('string') |
-            map('format', '{}:9200') |
+            product([':9200']) |
+            map('join') |
             list
           }}
         username: "{{ elastic_username }}"
