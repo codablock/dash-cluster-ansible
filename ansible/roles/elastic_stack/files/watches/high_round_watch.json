@@ -1,0 +1,41 @@
+{
+    "trigger": {
+      "schedule": {
+        "interval": "10s"
+      }
+    },
+    "input": {
+      "search": {
+        "request": {
+          "indices": ["logs-*"],
+          "body": {
+            "query": {
+              "bool": {
+                "must": [
+                  {
+                    "match": {
+                      "message": "Processed proposal"
+                    }
+                  },
+                  {
+                    "range": {
+                      "round": {
+                        "gt": 5
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "actions": {
+      "log_alert": {
+        "logging": {
+          "text": "Alert triggered: {{ctx.payload}}"
+        }
+      }
+    }
+  }

@@ -1,0 +1,33 @@
+{
+    "trigger": {
+      "schedule": {
+        "interval": "10s"
+      }
+    },
+    "input": {
+      "search": {
+        "request": {
+          "indices": ["logs-*"],
+          "body": {
+            "query": {
+              "bool": {
+                "should": [
+                  { "match": { "log.level": "ERROR" }},
+                  { "match": { "log.level": "FATAL" }}
+                ],
+                "minimum_should_match": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "actions": {
+      "log_alert": {
+        "logging": {
+          "text": "Alert triggered: {{ctx.payload}}"
+        }
+      }
+    }
+  }
+  

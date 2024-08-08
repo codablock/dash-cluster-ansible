@@ -1,0 +1,46 @@
+{
+    "trigger": {
+      "schedule": {
+        "interval": "5m"
+      }
+    },
+    "input": {
+      "search": {
+        "request": {
+          "indices": ["logs-*"],
+          "body": {
+            "query": {
+              "bool": {
+                "must_not": {
+                  "exists": {
+                    "field": "message"
+                  }
+                },
+                "filter": {
+                  "range": {
+                    "@timestamp": {
+                      "gte": "now-5m"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "condition": {
+      "compare": {
+        "ctx.payload.hits.total": {
+          "eq": 0
+        }
+      }
+    },
+    "actions": {
+      "log_alert": {
+        "logging": {
+          "text": "Alert triggered: {{ctx.payload}}"
+        }
+      }
+    }
+  }

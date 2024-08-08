@@ -22,3 +22,10 @@ platform_filebeat_inputs:
           fields:
             - from: "json.level"
               to: "log.level"
+
+metricbeat_modules:
+  - module: prometheus
+    period: 10s
+    hosts: ["{{ private_ip }}:{{ prometheus_port }}"]
+    metrics_path: "/metrics"
+    namespace: "drive_tenderdash"

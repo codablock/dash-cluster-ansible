@@ -1,0 +1,11 @@
+{
+    "description": "Parse round number from Tenderdash logs",
+    "processors": [
+      {
+        "grok": {
+          "field": "message",
+          "patterns": ["Processed proposal with .* for height: %{NUMBER:height}, round: %{NUMBER:round}"]
+        }
+      }
+    ]
+  }

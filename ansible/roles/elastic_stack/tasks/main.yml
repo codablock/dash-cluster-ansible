@@ -119,3 +119,30 @@
   ansible.builtin.import_tasks: configure_cluster.yml
   run_once: true
   delegate_to: '{{ play_hosts | first }}'
+
+
+- name: Upload and apply Tenderdash log parsing pipeline
+  ansible.builtin.uri:
+    url: "{{ elasticsearch_url }}/logstash/_pipeline/process_proposal_pipeline"
+    method: PUT
+    body: "{{ lookup('file', 'files/pipelines/process_proposal_pipeline.json') }}"
+    body_format: json
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+  when: inventory_hostname in groups['elasticsearch']
+
+- name: Create Elasticsearch Watches
+  ansible.builtin.uri:
+    url: "{{ elasticsearch_url }}/_watcher/watch/{{ item.name }}"
+    method: PUT
+    body: "{{ lookup('file', item.file) }}"
+    body_format: json
+    user: "{{ elastic_username }}"
+    password: "{{ elastic_password }}"
+  loop:
+    - { name: 'error_logs_watch', file: 'files/watches/error_logs_watch.json' }
+    - { name: 'high_round_watch', file: 'files/watches/high_round_watch.json' }
+    - { name: 'no_logs_watch', file: 'files/watches/no_logs_watch.json' }
+  loop_control:
+    label: "{{ item.name }}"
+  when: inventory_hostname in groups['elasticsearch']
