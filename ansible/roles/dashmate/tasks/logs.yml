@@ -43,7 +43,7 @@
     name: geerlingguy.filebeat
 
 - name: Make sure filebeat is restarted
-  service:
+  ansible.builtin.service:
     name: filebeat
     state: restarted
     enabled: true
