@@ -103,6 +103,7 @@
     recreate: always
     services:
       - kibana
+  when: inventory_hostname == "logs-1"
 
 - name: Wait for Kibana to be available
   ansible.builtin.uri:
@@ -114,8 +115,23 @@
   until: response.status == 200 and response.json.status.overall.level == "available"
   retries: 10
   delay: 10
+  when: inventory_hostname == "logs-1"
 
-- name: Configure Elasticsearch and Kibana
+- name: Set up Kibana UI
+  ansible.builtin.uri:
+    url: http://localhost:5601/api/saved_objects/_bulk_create
+    method: POST
+    status_code: 200
+    user: '{{ elastic_username }}'
+    password: '{{ elastic_password }}'
+    body_format: json
+    force_basic_auth: true
+    headers:
+      kbn-xsrf: true
+    body: "{{ lookup('file', 'files/infrastructure-ui-source.json') }}"
+  when: inventory_hostname == "logs-1"
+
+- name: Configure Elasticsearch cluster
   ansible.builtin.import_tasks: configure_cluster.yml
   run_once: true
   delegate_to: '{{ play_hosts | first }}'

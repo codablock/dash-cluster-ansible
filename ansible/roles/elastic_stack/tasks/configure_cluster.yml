@@ -20,7 +20,7 @@
     body_format: json
     body: "{{ lookup('file', 'files/index-templates/logs-core.json') }}"
 
-- name: Set up abci index template
+- name: Set up drive abci index template
   ansible.builtin.uri:
     url: http://localhost:9200/_index_template/logs-drive.abci
     method: PUT
@@ -52,16 +52,3 @@
     body:
       index:
         number_of_replicas: 0
-
-- name: Set up Kibana UI
-  ansible.builtin.uri:
-    url: http://localhost:5601/api/saved_objects/_bulk_create
-    method: POST
-    status_code: 200
-    user: '{{ elastic_username }}'
-    password: '{{ elastic_password }}'
-    body_format: json
-    force_basic_auth: true
-    headers:
-      kbn-xsrf: true
-    body: "{{ lookup('file', 'files/infrastructure-ui-source.json') }}"
