@@ -65,3 +65,16 @@
     headers:
       kbn-xsrf: true
     body: "{{ lookup('file', 'files/infrastructure-ui-source.json') }}"
+
+- name: Set up Tenderdash in Kibana UI
+  ansible.builtin.uri:
+    url: http://localhost:5601/api/saved_objects/_import
+    method: POST
+    status_code: 200
+    user: '{{ elastic_username }}'
+    password: '{{ elastic_password }}'
+    body_format: json
+    force_basic_auth: true
+    headers:
+      kbn-xsrf: true
+    body: "{{ lookup('file', 'files/tenderdash.ndjson') }}"
