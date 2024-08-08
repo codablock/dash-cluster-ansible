@@ -36,7 +36,11 @@
 
 - name: Load common filebeat config
   ansible.builtin.include_vars:
-    file: filebeat.yml
+    file: "{{ role_path }}/../core_filebeat/vars/common.yml"
+
+- name: Load filebeat inputs
+  ansible.builtin.include_vars:
+    file: filebeat_inputs.yml
 
 - name: Set up filebeat log monitoring
   ansible.builtin.include_role:
