@@ -6,9 +6,10 @@ filebeat_output_logstash_enabled: false
 filebeat_output_elasticsearch_enabled: true
 filebeat_output_elasticsearch_hosts: >-
   {{
-    query('inventory_hostnames', 'logs') |
+    query('inventory_hostnames', 'logs_nodes') |
     map('extract', hostvars, ['private_ip']) |
-    map('~(item) => item + \":9200\"') |
+    map('string') |
+    map('format', '{}:9200') |
     list
   }}
 filebeat_output_elasticsearch_auth:
