@@ -5,7 +5,8 @@ filebeat_inputs:
     enabled: true
     index: "logs-core-{{ dash_network_name }}-%{[agent.version]}"
     paths:
-      - "{{ dashmate_logs_dir }}/core.log"
+      - "{{ dashmate_logs_dir }}/core.log*"
+    exclude_files: ['\.gz$']
     processors:
       - add_fields:
           target: event
@@ -18,10 +19,10 @@ filebeat_inputs:
   - type: log
     enabled: "{{ dashmate_platform_enable }}"
     json.message_key: message
-    exclude_files: ['\.gz$']
     index: "logs-drive.abci-{{ dash_network_name }}-%{[agent.version]}"
     paths:
-      - "{{ dashmate_logs_dir }}/drive-json.log"
+      - "{{ dashmate_logs_dir }}/drive-json.log*"
+    exclude_files: ['\.gz$']
     processors:
       - timestamp:
           field: json.timestamp
@@ -44,7 +45,8 @@ filebeat_inputs:
     json.message_key: message
     index: "logs-drive.tenderdash-{{ dash_network_name }}-%{[agent.version]}"
     paths:
-      - "{{ dashmate_logs_dir }}/tenderdash.log"
+      - "{{ dashmate_logs_dir }}/tenderdash.log*"
+    exclude_files: ['\.gz$']
     processors:
       - add_fields:
           target: event
