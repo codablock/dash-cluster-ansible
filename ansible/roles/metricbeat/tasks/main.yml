@@ -53,7 +53,14 @@
             enabled: true
     output_conf:
       elasticsearch:
-        hosts: "{{ query('inventory_hostnames', 'logs') | map('extract', hostvars, ['private_ip']) | map('~(item) => item + \":9200\"') | list }}"
+        hosts: >-
+          {{
+            query('inventory_hostnames', 'logs_nodes') |
+            map('extract', hostvars, ['private_ip']) |
+            map('string') |
+            map('format', '{}:9200') |
+            list
+          }}
         username: "{{ elastic_username }}"
         password: "{{ elastic_password }}"
   when: metricbeat_enabled
