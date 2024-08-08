@@ -78,6 +78,7 @@
   become: true
   roles:
     - elastic_stack
+    - metricbeat
 
 - name: Setup load tester
   hosts: load_test
@@ -90,7 +91,8 @@
   hosts: metrics
   become: true
   roles:
-    - role: metrics
+    - metrics
+    - metricbeat
 
 - name: Set up miners
   hosts: miners
@@ -100,8 +102,8 @@
     - role: dashd
       tags:
         - dashd
-    - role: elastic_beats
-      core_container_name: dashd
+    - core_filebeat
+    - metricbeat
 
 - name: Set up mixers
   hosts: mixer_nodes
@@ -111,8 +113,8 @@
     - role: dashd
       tags:
         - dashd
-    - role: elastic_beats
-      core_container_name: dashd
+    - core_filebeat
+    - metricbeat
 
 - name: Set up core and tenderdash on seed nodes
   hosts: seed_nodes
@@ -133,8 +135,8 @@
       tags:
         - dashd
     - role: tenderdash
-    - role: elastic_beats
-      core_container_name: dashd
+    - core_filebeat
+    - metricbeat
 
 - name: Set up core on masternodes
   hosts: masternodes
@@ -158,8 +160,8 @@
       tags:
         - dashd
     - mn_status_report
-    - role: elastic_beats
-      core_container_name: dashd
+    - core_filebeat
+    - metricbeat
 
 
 # Start network
@@ -189,8 +191,8 @@
       dashd_zmq: true
       dashd_listen: true
     - insight
-    - role: elastic_beats
-      core_container_name: dashd
+    - core_filebeat
+    - metricbeat
   tags:
     - web
 
@@ -205,8 +207,8 @@
       enable_wallet: true
       tags:
         - dashd
-    - role: elastic_beats
-      core_container_name: dashd
+    - core_filebeat
+    - metricbeat
 
 # Register masternodes and set sporks
 
@@ -283,9 +285,7 @@
     - role: dash_cli
     - role: dashmate
     - role: mn_status_report
-    - role: elastic_beats
-      core_container_name: core
-      abci_logs_path: "{{ dashmate_logs_dir }}"
+    - role: metricbeat
 
 - name: Set up protx diff script
   hosts: masternodes

@@ -1,0 +1,17 @@
+---
+
+filebeat_inputs:
+  - type: container
+    enabled: true
+    index: "logs-core-{{ dash_network_name }}-%{[agent.version]}"
+    paths:
+      - '/var/lib/docker/containers/{{ core_container_id }}/*.log'
+    processors:
+      - add_fields:
+          target: event
+          fields:
+            dataset: "core-{{ dash_network_name }}"
+      - dissect:
+          tokenizer: "%{?timestamp} %{message}"
+          overwrite_keys: true
+          target_prefix: ""

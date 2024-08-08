@@ -58,6 +58,12 @@
   ansible.builtin.include_role:
     name: geerlingguy.filebeat
 
+- name: Make sure Filebeat is restarted
+  service:
+    name: filebeat
+    state: restarted
+    enabled: true
+
 # TODO: Make sure we have retention policy for metrics
 - name: Set up metricbeat
   ansible.builtin.include_role:

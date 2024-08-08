@@ -1,0 +1,59 @@
+---
+
+- name: Set up metricbeat
+  ansible.builtin.include_role:
+    name: elastic.beats
+  vars:
+    beats_version: "{{ elastic_version }}"
+    beat: metricbeat
+    beat_conf:
+      setup:
+        dashboards:
+          enabled: true
+        kibana:
+          host: "{{ hostvars['logs-1'].private_ip }}:5601"
+          username: "{{ elastic_username }}"
+          password: "{{ elastic_password }}"
+      metricbeat:
+        modules:
+          - module: system
+            metricsets:
+              - cpu             # CPU usage
+              - load            # CPU load averages
+              - memory          # Memory usage
+              - network         # Network IO
+              - process         # Per process metrics
+              - process_summary # Process summary
+              - uptime          # System Uptime
+              - socket_summary  # Socket summary
+              - core           # Per CPU core usage
+              - diskio         # Disk IO
+              - fsstat         # File system summary metrics
+              - socket         # Sockets and connection info (linux only)
+            enabled: true
+            period: 10s
+            processes: ['.*']
+
+            # Configure the metric types that are included by these metricsets.
+            cpu.metrics: ["percentages", "normalized_percentages"]  # The other available option is ticks.
+            core.metrics: ["percentages"]  # The other available option is ticks.
+          - module: docker
+            metricsets:
+              - "container"
+              - "cpu"
+              - "diskio"
+              - "event"
+              - "healthcheck"
+              - "info"
+              - "memory"
+              - "network"
+              # - "network_summary"
+            hosts: ["unix:///var/run/docker.sock"]
+            period: 10s
+            enabled: true
+    output_conf:
+      elasticsearch:
+        hosts: "{{ query('inventory_hostnames', 'logs') | map('extract', hostvars, ['private_ip']) | map('~(item) => item + \":9200\"') | list }}"
+        username: "{{ elastic_username }}"
+        password: "{{ elastic_password }}"
+  when: metricbeat_enabled

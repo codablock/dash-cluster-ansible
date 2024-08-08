@@ -1,0 +1,32 @@
+---
+
+- name: Load common filebeat config
+  ansible.builtin.include_vars:
+    file: common.yml
+
+- name: Get core container host info
+  community.docker.docker_host_info:
+    containers: true
+    containers_filters:
+      name: '{{ core_container_name }}'
+  register: core_host_info
+
+- name: Set container ids for core if core is running
+  ansible.builtin.set_fact:
+    core_container_id: '{{ core_host_info.containers[0].Id }}'
+  when: core_host_info.containers | length > 0
+
+- name: Load core input config if core is running
+  ansible.builtin.include_vars:
+    file: core.yml
+  when: core_container_id is defined
+
+- name: Set up filebeat log monitoring
+  ansible.builtin.include_role:
+    name: geerlingguy.filebeat
+
+- name: Make sure filebeat is restarted
+  service:
+    name: filebeat
+    state: restarted
+    enabled: true
