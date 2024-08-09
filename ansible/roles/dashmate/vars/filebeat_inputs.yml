@@ -6,7 +6,6 @@ filebeat_inputs:
     index: "logs-core-{{ dash_network_name }}-%{[agent.version]}"
     paths:
       - "{{ dashmate_logs_dir }}/core.log"
-    exclude_files: ['\.gz$']
     processors:
       - add_fields:
           target: event
