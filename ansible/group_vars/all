@@ -175,3 +175,6 @@ dashmate_logs_dir: '{{ dashmate_home }}/logs'
 load_tester_wallet_amount: 100
 
 prometheus_port: 36660
+
+#Set this to true in the yml if the network already has dashmate and just needs an update...
+dashmate_quick_update: false
