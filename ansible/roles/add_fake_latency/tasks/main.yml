@@ -3,4 +3,4 @@
 - name: Generate fake latency
   ansible.builtin.command: tc qdisc replace dev ens5 root netem delay {{ masternode_network_latency_max }}ms {{ masternode_network_latency_min }}ms 25%
   register: my_output
-  changed_when: my_output.rc != 0
+  changed_when: my_output.rc == 0
