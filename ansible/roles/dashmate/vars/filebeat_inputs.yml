@@ -1,0 +1,61 @@
+---
+
+filebeat_inputs:
+  - type: log
+    enabled: true
+    index: "logs-core-{{ dash_network_name }}-%{[agent.version]}"
+    paths:
+      - "{{ dashmate_logs_dir }}/core.log"
+    processors:
+      - add_fields:
+          target: event
+          fields:
+            dataset: "core-{{ dash_network_name }}"
+      - dissect:
+          tokenizer: "%{?timestamp} %{message}"
+          overwrite_keys: true
+          target_prefix: ""
+  - type: log
+    enabled: "{{ dashmate_platform_enable }}"
+    json.message_key: message
+    index: "logs-drive.abci-{{ dash_network_name }}-%{[agent.version]}"
+    paths:
+      - "{{ dashmate_logs_dir }}/drive-json.log"
+    processors:
+      - timestamp:
+          field: json.timestamp
+          layouts:
+            - UNIX_MS
+      - add_fields:
+          target: event
+          fields:
+            dataset: "drive.abci-{{ dash_network_name }}"
+      - rename:
+          fields:
+            - from: "json.fields.message"
+              to: "message"
+            - from: "json.level"
+              to: "log.level"
+          ignore_missing: true
+          fail_on_error: true
+  - type: log
+    enabled: "{{ dashmate_platform_enable }}"
+    json.message_key: message
+    index: "logs-drive.tenderdash-{{ dash_network_name }}-%{[agent.version]}"
+    paths:
+      - "{{ dashmate_logs_dir }}/tenderdash.log"
+    processors:
+      - add_fields:
+          target: event
+          fields:
+            dataset: "drive.tenderdash-{{ dash_network_name }}"
+      - rename:
+          fields:
+            - from: "json.message"
+              to: "message"
+          ignore_missing: true
+          fail_on_error: true
+      - rename:
+          fields:
+            - from: "json.level"
+              to: "log.level"
