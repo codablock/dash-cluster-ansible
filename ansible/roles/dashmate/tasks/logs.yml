@@ -1,38 +1,38 @@
 ---
 
-- name: Create logs dir
-  ansible.builtin.file:
-    path: '{{ dashmate_logs_dir }}'
-    state: directory
-    owner: '{{ dashmate_user }}'
-    group: '{{ dashmate_group }}'
-    recurse: true
-
-- name: Configure log rotation
-  ansible.builtin.include_role:
-    name: arillso.logrotate
-  vars:
-    logrotate_applications:
-      - name: platform-logs
-        definitions:
-          - logs:
-              - '{{ dashmate_logs_dir }}/*.log'
-            options:
-              - rotate 7
-              - daily
-              - maxsize 1G
-              - missingok
-              - notifempty
-              - copytruncate
-              - compress
-              - delaycompress
-
-- name: Ensure logrotate runs hourly under systemd timer
-  ansible.builtin.lineinfile:
-    path: /lib/systemd/system/logrotate.timer
-    regexp: '^OnCalendar=hourly'
-    insertafter: '^OnCalendar=daily'
-    line: OnCalendar=hourly
+#- name: Create logs dir
+#  ansible.builtin.file:
+#    path: '{{ dashmate_logs_dir }}'
+#    state: directory
+#    owner: '{{ dashmate_user }}'
+#    group: '{{ dashmate_group }}'
+#    recurse: true
+#
+#- name: Configure log rotation
+#  ansible.builtin.include_role:
+#    name: arillso.logrotate
+#  vars:
+#    logrotate_applications:
+#      - name: platform-logs
+#        definitions:
+#          - logs:
+#              - '{{ dashmate_logs_dir }}/*.log'
+#            options:
+#              - rotate 7
+#              - daily
+#              - maxsize 1G
+#              - missingok
+#              - notifempty
+#              - copytruncate
+#              - compress
+#              - delaycompress
+#
+#- name: Ensure logrotate runs hourly under systemd timer
+#  ansible.builtin.lineinfile:
+#    path: /lib/systemd/system/logrotate.timer
+#    regexp: '^OnCalendar=hourly'
+#    insertafter: '^OnCalendar=daily'
+#    line: OnCalendar=hourly
 
 - name: Load common filebeat config
   ansible.builtin.include_vars:
