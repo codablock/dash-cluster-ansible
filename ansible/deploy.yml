@@ -3,7 +3,7 @@
 # Bootstrap
 
 - name: Remove latency on masternodes before deployment starts
-  hosts: masternodes
+  hosts: masternodes,hp_masternodes
   become: true
   roles:
     - remove_fake_latency
@@ -294,7 +294,7 @@
     - role: mn_protx_diff
 
 - name: Set up fake latency on masternodes
-  hosts: masternodes
+  hosts: hp_masternodes,masternodes
   become: true
   roles:
     - role: add_fake_latency
