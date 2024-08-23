@@ -1,0 +1,136 @@
+---
+
+# Bootstrap
+
+- name: Set up swap and aws environment vars
+  hosts: all
+  gather_facts: true
+  become: true
+  pre_tasks:
+    - name: Check if inside AWS
+      ansible.builtin.uri:
+        url: http://169.254.169.254/latest/meta-data
+        timeout: 2
+      register: aws_uri_check
+      failed_when: false
+    - name: Set AWS environment variable
+      ansible.builtin.set_fact:
+        is_aws_environment: '{{ aws_uri_check.status == 200 }}'
+  roles:
+    - role: aws
+      when: is_aws_environment
+    - swap
+
+- name: Setup VPN
+  hosts: vpn
+  become: true
+  roles:
+    - role: openvpn
+      when: openvpn_enabled
+      tags: vpn
+
+- name: Setup jq, Python, CWAgent and Docker
+  hosts: all
+  become: true
+  pre_tasks:
+    - name: Update apt cache and install jq
+      ansible.builtin.apt:
+        pkg:
+          - jq
+          - unzip
+        update_cache: true
+  vars:
+    pip_package: python3-pip
+    pip_install_packages:
+      - name: docker
+        version: "6.0.1"
+      - name: docker-compose
+        version: "1.29.2"
+      - name: requests
+        version: "2.31"
+  roles:
+    - geerlingguy.pip
+    - role: geerlingguy.docker
+      vars:
+        docker_apt_arch: "{{ 'amd64' if ansible_architecture == 'x86_64' else 'arm64' }}"
+        docker_install_compose: false
+        docker_users:
+          - ubuntu
+    - docker_options
+    - eternal_terminal
+    - cwagent
+
+- name: Setup logs
+  hosts: logs_nodes
+  become: true
+  roles:
+    - elastic_stack
+
+- name: Setup metrics
+  hosts: metrics
+  become: true
+  roles:
+    - role: metrics
+
+- name: Set up tenderdash on seed nodes
+  hosts: seed_nodes
+  become: true
+  pre_tasks:
+    - name: Set node variables for seed nodes
+      ansible.builtin.set_fact:
+        node: "{{ seed_nodes[inventory_hostname] }}"
+        mode: "seed"
+      tags: always
+      when: inventory_hostname in seed_nodes
+  roles:
+    - role: tenderdash
+    - role: elastic_beats
+      core_container_name: dashd
+
+
+# Leaving this commented in here
+
+# - name: Register HP masternodes
+#   hosts: wallet_nodes
+#   become: true
+#   roles:
+#     - role: mn_init
+#       mnlist: "{{ hp_masternodes }}"
+#       funding_amount: "{{ masternode_collaterals.hpmn | int }}"
+
+# - name: Update inventory with HPMN protx values
+#   hosts: wallet_nodes
+#   roles:
+#     - role: mn_protx_config
+#       mnlist: "{{ hp_masternodes }}"
+
+- name: Set up core and platform on HP masternodes
+  hosts: hp_masternodes
+  become: true
+  pre_tasks:
+    - name: Check inventory for HP masternodes
+      ansible.builtin.set_fact:
+        node: "{{ hp_masternodes[inventory_hostname] }}"
+      tags: always
+      when: inventory_hostname in hp_masternodes
+  roles:
+    - role: dash_cli
+    - role: dashmate
+    - role: mn_status_report
+    - role: elastic_beats
+      core_container_name: core
+      abci_logs_path: "{{ dashmate_logs_dir }}"
+
+# - name: Clean up
+#   hosts: all
+#   become: true
+#   tasks:
+#     - name: Prune unused Docker images
+#       community.docker.docker_prune:
+#         containers: true
+#         images: true
+#         images_filters:
+#           dangling: false
+#         networks: true
+#         volumes: false
+#         builder_cache: true
