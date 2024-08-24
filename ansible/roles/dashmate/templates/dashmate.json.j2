@@ -182,6 +182,7 @@
             "dapiAndDrive": {
               "host": "0.0.0.0",
               "port": {{ gateway_port }},
+              "waitForStResultTimeout": '125s',
               "http2": {
                 "maxConcurrentStreams": {{ dashmate_platform_gateway_listeners_dapi_and_drive_http2_max_concurrent_streams }}
               }
@@ -239,7 +240,8 @@
                 "dockerFile": "{{ dashmate_source_dir }}/packages/dapi/Dockerfile",
                 "target": ""
               }
-            }
+            },
+            "waitForStResultTimeout": 120000
           }
         },
         "drive": {
@@ -319,7 +321,9 @@
               "host": "{{ private_ip }}",
               "port": {{ dashmate_platform_drive_abci_metrics_port }}
             },
-            "epochTime": {{ platform_drive_abci_epoch_time }}
+            "proposer": {
+              "txProcessingTimeLimit": 5000
+            }
           },
           "tenderdash": {
             "mode": "validator",
@@ -352,7 +356,9 @@
               "txEnqueueTimeout": "{{dashmate_platform_drive_tenderdash_mempool_tx_enqueue_timeout}}",
               "txSendRateLimit": {{dashmate_platform_drive_tenderdash_mempool_tx_send_rate_limit}},
               "txRecvRateLimit": {{dashmate_platform_drive_tenderdash_mempool_tx_recv_rate_limit}},
-              "maxConcurrentCheckTx": {{dashmate_platform_drive_tenderdash_mempool_max_concurrent_check_tx}}
+              "maxConcurrentCheckTx": {{dashmate_platform_drive_tenderdash_mempool_max_concurrent_check_tx}},
+              "ttlDuration": '24h',
+              "ttlNumBlocks": 0,
             },
             "rpc": {
               "host": "127.0.0.1",
