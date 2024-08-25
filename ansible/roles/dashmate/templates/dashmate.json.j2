@@ -182,10 +182,10 @@
             "dapiAndDrive": {
               "host": "0.0.0.0",
               "port": {{ gateway_port }},
-              "waitForStResultTimeout": "125s",
               "http2": {
                 "maxConcurrentStreams": {{ dashmate_platform_gateway_listeners_dapi_and_drive_http2_max_concurrent_streams }}
-              }
+              },
+              "waitForStResultTimeout": "{{ dashmate_platform_gateway_listeners_dapi_and_drive_wait_for_st_result_timeout }}"
             }
           },
           "rateLimiter": {
@@ -241,7 +241,7 @@
                 "target": ""
               }
             },
-            "waitForStResultTimeout": 120000
+            "waitForStResultTimeout": {{ dashmate_platform_dapi_api_wait_for_st_result_timeout }}
           }
         },
         "drive": {
@@ -347,7 +347,9 @@
               "flushThrottleTimeout": "{{dashmate_platform_drive_tenderdash_p2p_flush_throttle_timeout}}",
               "maxPacketMsgPayloadSize": {{dashmate_platform_drive_tenderdash_p2p_max_packet_msg_payload_size}},
               "sendRate": {{dashmate_platform_drive_tenderdash_p2p_send_rate}},
-              "recvRate": {{dashmate_platform_drive_tenderdash_p2p_recv_rate}}
+              "recvRate": {{dashmate_platform_drive_tenderdash_p2p_recv_rate}},
+              "maxConnections": {{dashmate_platform_drive_tenderdash_p2p_max_connections}},
+              "maxOutgoingConnections": {{dashmate_platform_drive_tenderdash_p2p_max_outgoing_connections}}
             },
             "mempool": {
               "cacheSize": {{dashmate_platform_drive_tenderdash_mempool_cache_size}},
