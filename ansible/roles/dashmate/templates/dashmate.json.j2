@@ -182,7 +182,7 @@
             "dapiAndDrive": {
               "host": "0.0.0.0",
               "port": {{ gateway_port }},
-              "waitForStResultTimeout": '125s',
+              "waitForStResultTimeout": "125s",
               "http2": {
                 "maxConcurrentStreams": {{ dashmate_platform_gateway_listeners_dapi_and_drive_http2_max_concurrent_streams }}
               }
@@ -358,7 +358,7 @@
               "txSendRateLimit": {{dashmate_platform_drive_tenderdash_mempool_tx_send_rate_limit}},
               "txRecvRateLimit": {{dashmate_platform_drive_tenderdash_mempool_tx_recv_rate_limit}},
               "maxConcurrentCheckTx": {{dashmate_platform_drive_tenderdash_mempool_max_concurrent_check_tx}},
-              "ttlDuration": '24h',
+              "ttlDuration": "24h",
               "ttlNumBlocks": 0,
             },
             "rpc": {
