@@ -327,7 +327,7 @@
             }
           },
           "tenderdash": {
-            "mode": "validator",
+            "mode": "{{ tenderdash_mode }}",
             "docker": {
               "image": "{{ tendermint_image }}"
             },
