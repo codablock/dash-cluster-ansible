@@ -137,7 +137,7 @@
         "log": {
           "filePath": "{{ dashmate_logs_dir }}/core.log",
           "debug": {
-            "enabled": {%- if dashd_debug == 1 %}true{{ else }}false{% endif %},
+            "enabled": {% if dashd_debug == 1 %}true{{% else %}}false{% endif %},
             "ips": false,
             "sourceLocations": false,
             "threadNames": false,
