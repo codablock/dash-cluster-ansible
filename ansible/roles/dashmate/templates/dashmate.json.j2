@@ -133,16 +133,17 @@
             "mnhf": "{{ dashd_devnet_llmq_mnhf }}"
           }
         },
-        "logIps": 0,
         "indexes": [],
         "log": {
-          "file": {
-            "categories": [
-              {%- if dashd_debug == 1 %}
-
-              "all"
-            {%+ endif %}],
-            "path": "{{ dashmate_logs_dir }}/core.log"
+          "filePath": "{{ dashmate_logs_dir }}/core.log",
+          "debug": {
+            "enabled": {%- if dashd_debug == 1 %}true{{ else }}false{% endif %},
+            "ips": false,
+            "sourceLocations": false,
+            "threadNames": false,
+            "timeMicros": false,
+            "includeOnly": [],
+            "exclude": []
           }
         }
       },
