@@ -402,7 +402,7 @@
               }
             },
             "log": {
-              "level": "{{ tenderdash_log_level }}",
+              "level": "{{ node.get('tenderdash_debug', tenderdash_log_level) }}",
               "format": "json",
               "path": "{{ dashmate_logs_dir }}/tenderdash.log"
             },
