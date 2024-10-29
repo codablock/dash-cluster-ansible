@@ -445,10 +445,10 @@
                 },
                 "abci": {
                   "recheck_tx": true
-                },
+                }{% if initial_platform_protocol_version %},
                 "version": {
-                  "app_version": "1"
-                }
+                  "app_version": "{{ initial_platform_protocol_version }}"
+                }{% endif %}
               },
               "validator_quorum_type": {{ platform_drive_validator_set_quorum_llmq_type }}
             }
