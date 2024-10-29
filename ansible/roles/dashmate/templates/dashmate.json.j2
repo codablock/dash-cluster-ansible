@@ -133,16 +133,17 @@
             "mnhf": "{{ dashd_devnet_llmq_mnhf }}"
           }
         },
-        "logIps": 0,
         "indexes": [],
         "log": {
-          "file": {
-            "categories": [
-              {%- if dashd_debug == 1 %}
-
-              "all"
-            {%+ endif %}],
-            "path": "{{ dashmate_logs_dir }}/core.log"
+          "filePath": "{{ dashmate_logs_dir }}/core.log",
+          "debug": {
+            "enabled": {% if dashd_debug == 1 or node.get('dashd_debug', 0) == 1%}true{% else %}false{% endif %},
+            "ips": false,
+            "sourceLocations": false,
+            "threadNames": false,
+            "timeMicros": false,
+            "includeOnly": [],
+            "exclude": []
           }
         }
       },
@@ -247,7 +248,7 @@
         "drive": {
           "abci": {
             "docker": {
-              "image": "{{ drive_image }}",
+              "image": "{% if node.get('drive_debug', 0) == 1 %}{{ drive_image }}-debug{% else %}{{ drive_image }}{% endif %}",
               "build": {
                 "enabled": false,
                 "context": "{{ dashmate_source_dir }}",
@@ -282,8 +283,8 @@
               }{% endif %}
             },
             "grovedbVisualizer": {
-              "enabled": {% if platform_drive_grovedb_visualizer_enabled %}true{% else %}false{% endif %},
-              "host": "{{ private_ip }}",
+              "enabled": {% if node.get('drive_debug', 0) == 1 %}true{% else %}false{% endif %},
+              "host": "{% if node.get('drive_debug', 0) == 1 %}0.0.0.0{% else %}{{private_ip}}{% endif %}",
               "port": {{ platform_drive_grovedb_visualizer_port }}
             },
             "tokioConsole": {
@@ -401,7 +402,7 @@
               }
             },
             "log": {
-              "level": "{{ tenderdash_log_level }}",
+              "level": "{{ node.get('tenderdash_debug', tenderdash_log_level) }}",
               "format": "json",
               "path": "{{ dashmate_logs_dir }}/tenderdash.log"
             },
