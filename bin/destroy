@@ -39,6 +39,16 @@ if [ $EXIT ]; then
     exit 1
 fi
 
+# Confirmation for destroy command on testnet with -t=all
+if [[ $NETWORK_NAME == "testnet" ]]; then
+    echo "⚠️⚠️⚠️  You are about to destroy the entire 'testnet' environment. This will cause untold damage to platform and most likely make keys irrevocable - testnet platform will STALL forever ⚠️⚠️⚠️"
+    read -p "Are you sure you want to proceed? Type 'I solemnly swear I know what I am doing and take on all responsibility' to continue: " confirmation
+    if [[ $confirmation != "I solemnly swear I know what I am doing and take on all responsibility" ]]; then
+        echo "Operation cancelled."
+        exit 1
+    fi
+fi
+
 . ./lib/cli/init.sh
 . ./lib/cli/terraform.sh
 . ./lib/cli/ansible.sh
