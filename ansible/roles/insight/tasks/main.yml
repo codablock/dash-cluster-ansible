@@ -27,8 +27,16 @@
 
 - name: Check Insight container
   ansible.builtin.assert:
-    that: 'output.services.insight.insight.state.running'
+    that:
+      - output.containers is defined
+      - (output.containers | selectattr('Service', '==', 'insight') | list) | length > 0
+      - (output.containers | selectattr('Service', '==', 'insight') | list)[0].State == 'running'
+    fail_msg: "No 'insight' container found or it isn't running."
 
 - name: Check Insight Proxy container
   ansible.builtin.assert:
-    that: 'output.services.insight_proxy.insight_proxy.state.running'
+    that:
+      - output.containers is defined
+      - (output.containers | selectattr('Service', '==', 'insight_proxy') | list) | length > 0
+      - (output.containers | selectattr('Service', '==', 'insight_proxy') | list)[0].State == 'running'
+    fail_msg: "No 'insight proxy' container found or it isn't running."
