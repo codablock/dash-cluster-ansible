@@ -1,55 +1,45 @@
 #!/usr/bin/env bash
 
-# runon
-#
-# Demonstrates:
-#   - A required -n <network>
-#   - An optional -g <group>
-#   - If no -g is given but an extra argument is passed, that's a single-server name
-#   - A -c <command> that, if provided, is run via SSH on matching servers
-#   - Minimal example with regex-based inventory parsing
-
-###############################################################################
-# 1) Parse Arguments (getopts + leftover args)
-###############################################################################
-
 NETWORK=""
 GROUP=""
 COMMAND=""
+RUN_ALL=false
 
 usage() {
-  echo "Usage: $0 -n <network> [ -g <group> ] [ <server> ] [ -c <command> ]"
+  echo "Usage: $0 -n <network> [ -g <group> ] [ <server> ] [ -c <command> ] [ -a ]"
   echo
-  echo "Examples:"
+  echo "Flags:"
+  echo "  -n <network>  (required)"
+  echo "  -g <group>    (optional) e.g. hp-masternodes"
+  echo "  -c <command>  (optional) command to run"
+  echo "  -a            (optional) run on ALL servers"
+  echo
+  echo "Example usage:"
+  echo "  $0 -n testnet -a -c \"echo 'Hello from all' && hostname\""
   echo "  $0 -n testnet -g hp-masternodes -c \"echo 'Hello group' && hostname\""
   echo "  $0 -n testnet hp-masternode-4 -c \"sudo hostnamectl set-hostname hp-masternode-4\""
-  echo "  $0 -n testnet -c \"echo 'Hello all'\"  (runs on everything, if so coded)"
   exit 1
 }
 
-# Parse the flags -n, -g, -c
-while getopts ":n:g:c:" opt; do
+# Parse -n, -g, -c, -a flags + leftover args
+while getopts ":n:g:c:a" opt; do
   case "$opt" in
     n) NETWORK="$OPTARG" ;;
     g) GROUP="$OPTARG"   ;;
     c) COMMAND="$OPTARG" ;;
+    a) RUN_ALL=true      ;;
     *) usage ;;
   esac
 done
 shift $((OPTIND - 1))
 
-# Check required network
 if [[ -z "$NETWORK" ]]; then
-  echo "Error: You must specify -n <network>."
+  echo "Error: you must specify -n <network>."
   usage
 fi
 
-# Now, if there's anything left in "$@", that might be the single server argument
-SERVER="$1"   # If user typed "hp-masternode-4" after the flags
-
-###############################################################################
-# 2) Determine which inventory file to use
-###############################################################################
+# If there's a leftover arg (not a flag), assume it's a single server
+SERVER="$1"
 
 INVENTORY_FILE="./networks/${NETWORK}.inventory"
 if [[ ! -f "$INVENTORY_FILE" ]]; then
@@ -62,68 +52,65 @@ echo "Inventory file: $INVENTORY_FILE"
 echo "Group (-g):     $GROUP"
 echo "Server arg:     $SERVER"
 echo "Command (-c):   $COMMAND"
+echo "Run ALL (-a):   $RUN_ALL"
 
 ###############################################################################
-# 3) Figure out what pattern to grep for
+# Determine which pattern to use
 ###############################################################################
-# Cases:
-#   1) If we have -g <group>, we assume it's a group name like "hp-masternodes".
-#      If it ends with "s", we strip it -> "hp-masternode" => match multiple lines.
-#   2) If we have no -g but do have $SERVER (like "hp-masternode-4"), we match only that line.
-#   3) If neither is present, optionally match ALL "hp-masternode-" lines (or do nothing).
-
 REGEX=""
+
 if [[ -n "$GROUP" ]]; then
   # => group logic
   if [[ "$GROUP" == *s ]]; then
-    # Remove trailing 's'
-    BASE_NAME="${GROUP::-1}"   # "hp-masternodes" => "hp-masternode"
+    BASE_NAME="${GROUP::-1}"  # remove trailing 's'
   else
     BASE_NAME="$GROUP"
   fi
-  # We'll match any line that starts with "hp-masternode-<digits>"
-  # (and possibly "ansible" if your lines contain that).
   REGEX="^${BASE_NAME}-[0-9]{1,3}\s+ansible"
   echo "Using group-based pattern: $REGEX"
+
 elif [[ -n "$SERVER" ]]; then
   # => single server logic
-  # If user typed "hp-masternode-4", we match exactly that node in the line
   REGEX="^${SERVER}\s+ansible"
   echo "Using single-server pattern: $REGEX"
-else
-  # => no -g, no server => run on everything? or show usage?
-  # Here, let's assume we want "hp-masternode-" lines:
-  REGEX="^hp-masternode-[0-9]{1,3}\s+ansible"
+
+elif [[ "$RUN_ALL" == true ]]; then
+  # => run on ALL servers
+  REGEX="[0-9]{1,3}\s+ansible"
   echo "No group/server specified, matching all nodes: $REGEX"
+
+else
+  # => no group, no server, no -a => show usage or bail out
+  echo "No group/server specified, and -a not set."
+  usage
 fi
 
-# If there's still no pattern, bail out
+# If we still have no pattern, exit
 if [[ -z "$REGEX" ]]; then
-  echo "Error: Could not determine a valid grep pattern."
+  echo "Error: no valid pattern to grep."
   exit 1
 fi
 
 ###############################################################################
-# 4) Read matching lines from inventory
+# Grep the inventory
 ###############################################################################
-
 readarray -t MATCHES < <( grep -E "$REGEX" "$INVENTORY_FILE" )
 
 echo "Found ${#MATCHES[@]} matching line(s)."
 
 ###############################################################################
-# 5) Parse each matched line for ansible_host, ansible_user, then SSH
+# SSH logic
 ###############################################################################
-
 for line in "${MATCHES[@]}"; do
   echo
   echo "Line: $line"
 
-  # Example parse for ansible_host, ansible_user
+  # Parse ansible_host
   ANSIBLE_HOST=$(echo "$line" \
     | grep -o "ansible_host=[^[:space:]]*" \
     | cut -d"=" -f2)
 
+  # Parse ansible_user
   ANSIBLE_USER=$(echo "$line" \
     | grep -o "ansible_user='[^']*" \
     | cut -d"'" -f2)
@@ -132,7 +119,7 @@ for line in "${MATCHES[@]}"; do
   echo "  -> Host: $ANSIBLE_HOST"
   echo "  -> User: $ANSIBLE_USER"
 
-  # If a command was provided, run it via SSH
+  # If command was specified, run it
   if [[ -n "$COMMAND" ]]; then
     echo "  -> Running: $COMMAND"
     ssh -o StrictHostKeyChecking=no \
