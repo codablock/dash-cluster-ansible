@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# my_script.sh
+# runon
 #
 # Demonstrates:
 #   - A required -n <network>
