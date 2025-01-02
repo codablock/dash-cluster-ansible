@@ -105,14 +105,14 @@ resource "aws_elb" "web" {
   ]
 
   listener {
-    instance_port     = 80
+    instance_port     = 3003
     instance_protocol = "http"
     lb_port           = 80
     lb_protocol       = "http"
   }
 
   listener {
-    instance_port      = 80
+    instance_port      = 3003
     instance_protocol  = "http"
     lb_port            = 443
     lb_protocol        = "https"
@@ -122,7 +122,7 @@ resource "aws_elb" "web" {
   health_check {
     healthy_threshold   = 2
     interval            = 20
-    target              = "HTTP:80/"
+    target              = "HTTP:3003/"
     timeout             = 3
     unhealthy_threshold = 2
   }
