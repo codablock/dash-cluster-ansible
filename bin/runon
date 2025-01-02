@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+
+NETWORK=""
+GROUP=""
+COMMAND=""
+RUN_ALL=false
+
+usage() {
+  echo "Usage: $0 -n <network> [ -g <group> ] [ <server> ] [ -c <command> ] [ -a ]"
+  echo
+  echo "Flags:"
+  echo "  -n <network>  (required)"
+  echo "  -g <group>    (optional) e.g. hp-masternodes"
+  echo "  -c <command>  (optional) command to run"
+  echo "  -a            (optional) run on ALL servers"
+  echo
+  echo "Example usage:"
+  echo "  $0 -n testnet -a -c \"echo 'Hello from all' && hostname\""
+  echo "  $0 -n testnet -g hp-masternodes -c \"echo 'Hello group' && hostname\""
+  echo "  $0 -n testnet hp-masternode-4 -c \"sudo hostnamectl set-hostname hp-masternode-4\""
+  exit 1
+}
+
+# Parse -n, -g, -c, -a flags + leftover args
+while getopts ":n:g:c:a" opt; do
+  case "$opt" in
+    n) NETWORK="$OPTARG" ;;
+    g) GROUP="$OPTARG"   ;;
+    c) COMMAND="$OPTARG" ;;
+    a) RUN_ALL=true      ;;
+    *) usage ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+if [[ -z "$NETWORK" ]]; then
+  echo "Error: you must specify -n <network>."
+  usage
+fi
+
+# If there's a leftover arg (not a flag), assume it's a single server
+SERVER="$1"
+
+INVENTORY_FILE="./networks/${NETWORK}.inventory"
+if [[ ! -f "$INVENTORY_FILE" ]]; then
+  echo "Error: Inventory file does not exist: $INVENTORY_FILE"
+  exit 1
+fi
+
+echo "Network:        $NETWORK"
+echo "Inventory file: $INVENTORY_FILE"
+echo "Group (-g):     $GROUP"
+echo "Server arg:     $SERVER"
+echo "Command (-c):   $COMMAND"
+echo "Run ALL (-a):   $RUN_ALL"
+
+###############################################################################
+# Determine which pattern to use
+###############################################################################
+REGEX=""
+
+if [[ -n "$GROUP" ]]; then
+  # => group logic
+  if [[ "$GROUP" == *s ]]; then
+    BASE_NAME="${GROUP::-1}"  # remove trailing 's'
+  else
+    BASE_NAME="$GROUP"
+  fi
+  REGEX="^${BASE_NAME}-[0-9]{1,3}\s+ansible"
+  echo "Using group-based pattern: $REGEX"
+
+elif [[ -n "$SERVER" ]]; then
+  # => single server logic
+  REGEX="^${SERVER}\s+ansible"
+  echo "Using single-server pattern: $REGEX"
+
+elif [[ "$RUN_ALL" == true ]]; then
+  # => run on ALL servers
+  REGEX="[0-9]{1,3}\s+ansible"
+  echo "No group/server specified, matching all nodes: $REGEX"
+
+else
+  # => no group, no server, no -a => show usage or bail out
+  echo "No group/server specified, and -a not set."
+  usage
+fi
+
+# If we still have no pattern, exit
+if [[ -z "$REGEX" ]]; then
+  echo "Error: no valid pattern to grep."
+  exit 1
+fi
+
+###############################################################################
+# Grep the inventory
+###############################################################################
+readarray -t MATCHES < <( grep -E "$REGEX" "$INVENTORY_FILE" )
+
+echo "Found ${#MATCHES[@]} matching line(s)."
+
+###############################################################################
+# SSH logic
+###############################################################################
+for line in "${MATCHES[@]}"; do
+  echo
+  echo "Line: $line"
+
+  # Parse ansible_host
+  ANSIBLE_HOST=$(echo "$line" \
+    | grep -o "ansible_host=[^[:space:]]*" \
+    | cut -d"=" -f2)
+
+  # Parse ansible_user
+  ANSIBLE_USER=$(echo "$line" \
+    | grep -o "ansible_user='[^']*" \
+    | cut -d"'" -f2)
+  [[ -z "$ANSIBLE_USER" ]] && ANSIBLE_USER="ubuntu"
+
+  echo "  -> Host: $ANSIBLE_HOST"
+  echo "  -> User: $ANSIBLE_USER"
+
+  # If command was specified, run it
+  if [[ -n "$COMMAND" ]]; then
+    echo "  -> Running: $COMMAND"
+    ssh -o StrictHostKeyChecking=no \
+        -i ~/.ssh/evo-app-deploy.rsa \
+        "${ANSIBLE_USER}@${ANSIBLE_HOST}" \
+        "bash -c '$COMMAND'" \
+        < /dev/null
+  fi
+done
+
+echo
+echo "Done."
+exit 0
