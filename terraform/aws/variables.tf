@@ -28,12 +28,12 @@ variable "faucet_https_port" {
 
 variable "insight_port" {
   description = "Insight port"
-  default     = 3001
+  default     = 80
 }
 
 variable "insight_https_port" {
   description = "Insight HTTPS port"
-  default     = 3002
+  default     = 443
 }
 
 variable "ssh_port" {

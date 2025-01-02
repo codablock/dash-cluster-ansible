@@ -164,8 +164,8 @@ resource "aws_security_group" "http" {
   vpc_id      = aws_vpc.default.id
 
   ingress {
-    from_port   = 3003
-    to_port     = 3003
+    from_port   = var.faucet_port
+    to_port     = var.faucet_port
     protocol    = "tcp"
     description = "Faucet"
 
@@ -177,8 +177,8 @@ resource "aws_security_group" "http" {
 
   # Insight Explorer
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = var.insight_port
+    to_port     = var.insight_port
     protocol    = "tcp"
     description = "Insight Explorer"
 
@@ -189,8 +189,8 @@ resource "aws_security_group" "http" {
 
   # Insight Explorer HTTPS
   ingress {
-    from_port   = 443
-    to_port     = 443
+    from_port   = var.insight_https_port
+    to_port     = var.insight_https_port
     protocol    = "tcp"
     description = "Insight Explorer HTTPS"
 
@@ -446,8 +446,8 @@ resource "aws_security_group" "elb" {
 
   # Insight Explorer HTTPS
   ingress {
-    from_port   = 443
-    to_port     = 443
+    from_port   = var.insight_https_port
+    to_port     = var.insight_https_port
     protocol    = "tcp"
     description = "Insight Explorer HTTPS"
 
