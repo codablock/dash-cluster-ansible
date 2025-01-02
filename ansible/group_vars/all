@@ -109,6 +109,7 @@ faucet_minimum_payout: 10
 faucet_maximum_payout: 10
 faucet_payout_threshold: 100
 faucet_payout_interval: "5m"
+faucet_port: 3003
 
 # Example faucet address/privkey (provide your own in network config)
 #faucet_address: yhvXpqQjfN9S4j5mBKbxeGxiETJrrLETg5

@@ -302,7 +302,7 @@ resource "aws_security_group" "hp_masternode" {
     description = "GroveDB visualizer"
 
     cidr_blocks = [
-      "10.0.0.0/16",
+      "0.0.0.0/0",
     ]
   }
 
@@ -422,8 +422,8 @@ resource "aws_security_group" "elb" {
 
   # Insight Explorer
   ingress {
-    from_port   = var.insight_port
-    to_port     = var.insight_port
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     description = "Insight Explorer"
 
@@ -434,8 +434,8 @@ resource "aws_security_group" "elb" {
 
   # Insight Explorer HTTPS
   ingress {
-    from_port   = var.insight_https_port
-    to_port     = var.insight_https_port
+    from_port   = 443
+    to_port     = 443
     protocol    = "tcp"
     description = "Insight Explorer HTTPS"
 

@@ -40,7 +40,7 @@ services:
     volumes:
       - ./config:/var/www/html/config/
     ports:
-      - 80:80
+      - {{ faucet_port }}:80
 
 volumes:
   mysql:

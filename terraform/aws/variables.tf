@@ -18,12 +18,12 @@ variable "dashd_zmq_port" {
 
 variable "faucet_port" {
   description = "Faucet port"
-  default     = 80
+  default     = 3003
 }
 
 variable "faucet_https_port" {
   description = "Faucet HTTPS port"
-  default     = 443
+  default     = 3004
 }
 
 variable "insight_port" {
@@ -243,7 +243,7 @@ variable "load_test_instance_size" {
 
 variable "metrics_root_disk_size" {
   description = "Default disk size for load testing nodes"
-  default     = 20
+  default     = 40
 }
 
 variable "metrics_instance_type" {
