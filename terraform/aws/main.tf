@@ -107,29 +107,58 @@ resource "aws_elb" "web" {
   listener {
     instance_port     = var.faucet_port
     instance_protocol = "http"
-    lb_port           = var.faucet_port
+    lb_port           = 80
     lb_protocol       = "http"
   }
 
   listener {
     instance_port      = var.faucet_port
     instance_protocol  = "http"
-    lb_port            = var.faucet_https_port
+    lb_port            = 443
     lb_protocol        = "https"
     ssl_certificate_id = aws_acm_certificate_validation.faucet.certificate_arn
   }
 
+  health_check {
+    healthy_threshold   = 2
+    interval            = 20
+    target              = "HTTP:${var.faucet_port}/"
+    timeout             = 3
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Name        = "dn-${terraform.workspace}-web"
+    DashNetwork = terraform.workspace
+  }
+}
+
+resource "aws_elb" "insight" {
+  name = "${var.public_network_name}-insight"
+
+  subnets = aws_subnet.public.*.id
+
+  count = var.web_count >= 1 ? 1 : 0
+
+  security_groups = [
+    aws_security_group.elb.id,
+  ]
+
+  instances = [
+    aws_instance.web[0].id,
+  ]
+
   listener {
     instance_port     = var.insight_port
     instance_protocol = "http"
-    lb_port           = var.insight_port
+    lb_port           = 80
     lb_protocol       = "http"
   }
 
   listener {
     instance_port      = var.insight_port
     instance_protocol  = "http"
-    lb_port            = var.insight_https_port
+    lb_port            = 443
     lb_protocol        = "https"
     ssl_certificate_id = aws_acm_certificate_validation.insight.certificate_arn
   }
@@ -137,13 +166,13 @@ resource "aws_elb" "web" {
   health_check {
     healthy_threshold   = 2
     interval            = 20
-    target              = "HTTP:80/"
+    target              = "HTTP:80/insight-api/status"
     timeout             = 3
     unhealthy_threshold = 2
   }
 
   tags = {
-    Name        = "dn-${terraform.workspace}-web"
+    Name        = "dn-${terraform.workspace}-insight"
     DashNetwork = terraform.workspace
   }
 }
@@ -283,7 +312,7 @@ resource "aws_route53_record" "insight" {
   name    = "insight.${var.public_network_name}.${var.main_domain}"
   type    = "CNAME"
   ttl     = "300"
-  records = [aws_elb.web[count.index].dns_name]
+  records = [aws_elb.insight[count.index].dns_name]
 
   count = length(var.main_domain) > 1 ? 1 : 0
 }

@@ -314,6 +314,7 @@ resource "aws_instance" "hp_masternode_arm" {
 
   subnet_id = element(aws_subnet.public.*.id, count.index)
 
+  
   root_block_device {
     volume_size = var.hpmn_node_disk_size
     volume_type = var.volume_type
@@ -332,7 +333,8 @@ resource "aws_instance" "hp_masternode_arm" {
   }
 
   lifecycle {
-    ignore_changes = [ami]
+    ignore_changes = [ami, root_block_device[0].volume_size]
+    
   }
 
 }

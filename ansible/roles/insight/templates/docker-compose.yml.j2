@@ -18,7 +18,7 @@ services:
     depends_on:
       - insight
     ports:
-      - {{ insight_port }}:{{ insight_port }}
+      - 80:80
     volumes:
       - {{ insight_path }}/insight-proxy-nginx.conf:/etc/nginx/conf.d/default.conf
 

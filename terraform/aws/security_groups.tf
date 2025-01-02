@@ -164,8 +164,8 @@ resource "aws_security_group" "http" {
   vpc_id      = aws_vpc.default.id
 
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = var.faucet_port
+    to_port     = var.faucet_port
     protocol    = "tcp"
     description = "Faucet"
 
@@ -175,16 +175,28 @@ resource "aws_security_group" "http" {
     ])
   }
 
+  # Insight Explorer
   ingress {
     from_port   = var.insight_port
     to_port     = var.insight_port
     protocol    = "tcp"
     description = "Insight Explorer"
 
-    cidr_blocks = flatten([
-      aws_subnet.public.*.cidr_block,
-      "${aws_eip.vpn[0].public_ip}/32",
-    ])
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
+  }
+
+  # Insight Explorer HTTPS
+  ingress {
+    from_port   = var.insight_https_port
+    to_port     = var.insight_https_port
+    protocol    = "tcp"
+    description = "Insight Explorer HTTPS"
+
+    cidr_blocks = [
+      "0.0.0.0/0",
+    ]
   }
 
   tags = {
@@ -302,7 +314,7 @@ resource "aws_security_group" "hp_masternode" {
     description = "GroveDB visualizer"
 
     cidr_blocks = [
-      "10.0.0.0/16",
+      "0.0.0.0/0",
     ]
   }
 
@@ -422,8 +434,8 @@ resource "aws_security_group" "elb" {
 
   # Insight Explorer
   ingress {
-    from_port   = var.insight_port
-    to_port     = var.insight_port
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     description = "Insight Explorer"
 
