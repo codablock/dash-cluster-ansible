@@ -322,7 +322,7 @@ resource "aws_route53_record" "metrics" {
   name    = "metrics.${var.public_network_name}.networks.${var.main_domain}"
   type    = "CNAME"
   ttl     = "300"
-  records = [aws_elb.web[count.index].dns_name]
+  records = [aws_instance.metrics[count.index].public_ip]
   count   = length(var.main_domain) > 1 ? 1 : 0
 }
 
