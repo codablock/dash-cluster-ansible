@@ -87,4 +87,8 @@
     name: generate_blocks
   vars:
     generate: blocks
-    num_blocks: 1
+    num_blocks: 2
+
+- name: Pause for 10 seconds to allow gobjects to propagate
+  ansible.builtin.pause:
+    seconds: 10
