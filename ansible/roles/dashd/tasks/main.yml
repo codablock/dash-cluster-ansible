@@ -112,6 +112,19 @@
     recreate: always
     timeout: 30
 
+
+- name: Determine node-specific start day
+  set_fact:
+    node_start_day: "{{ (play_hosts.index(inventory_hostname) % nightly_masternodes) + 1 }}"
+  when: 'inventory_hostname in groups[nightly_masternodes]'
+
+- name: Schedule restart for hosts running nightly core
+  ansible.builtin.cron:
+    name: "Update nightly core container"
+    day: "{{ node_start_day }}/{{ groups['nightly_masternodes'] | length }}"
+    job: "cd {{ dashd_compose_path }} && docker-compose pull && docker compose up -d"
+  when: 'inventory_hostname in groups[nightly_masternodes]'
+
 - name: Wait for rpc to be available
   ansible.builtin.command: dash-cli getgovernanceinfo
   register: task_result

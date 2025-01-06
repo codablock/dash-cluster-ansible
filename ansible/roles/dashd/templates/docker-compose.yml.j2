@@ -2,7 +2,7 @@ version: '3'
 
 services:
   dashcore:
-    image: {{ dashd_image }}
+    image: "{{ dashd_nightly_image if 'nightly_masternodes' in group_names else dashd_image }}"
     user: {{ dash_user.uid }}:{{ dash_user.group }}
     container_name: dashd
     restart: always

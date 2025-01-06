@@ -35,7 +35,7 @@
           "port": 3001
         },
         "docker": {
-          "image": "{{ dashd_image }}",
+          "image": "{{ dashd_nightly_image if 'nightly_masternodes' in group_names else dashd_image }}",
           "commandArgs": []
         },
         "p2p": {

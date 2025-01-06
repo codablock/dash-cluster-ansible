@@ -267,6 +267,19 @@
     - not dashmate_restart_all.changed
   changed_when: dashmate_force_start.rc == 0
 
+- name: Determine node-specific start day for hosts running nightly core
+  set_fact:
+    node_start_day: "{{ (play_hosts.index(inventory_hostname) % nightly_masternodes) + 1 }}"
+  when: 'inventory_hostname in groups[nightly_masternodes]'
+
+- name: Schedule restart for hosts running nightly core
+  ansible.builtin.cron:
+    name: "Update nightly core container"
+    day: "{{ node_start_day }}/{{ groups['nightly_masternodes'] | length }}"
+    job: "cd {{ dashmate_cwd }} && {{ dashmate_cmd }} update && {{ dashmate_cmd }} start --force --verbose"
+    user: "{{ dashmate_user }}"
+  when: 'inventory_hostname in groups[nightly_masternodes]'
+
 - name: Disable dashmate helper build
   ansible.builtin.command: "{{ dashmate_cmd }} config set dashmate.helper.docker.build.enabled false"
   become: true
