@@ -85,3 +85,5 @@ dashmate_platform_drive_tenderdash_consensus_unsafe_override_vote_delta:
 
 restart_chunk_size: 10
 restart_delay_minutes: 10
+
+tenderdash_mode: validator

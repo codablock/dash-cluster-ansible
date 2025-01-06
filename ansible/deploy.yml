@@ -116,7 +116,7 @@
     - core_filebeat
     - metricbeat
 
-- name: Set up core and tenderdash on seed nodes
+- name: Set up dashmate on seed nodes
   hosts: seed_nodes
   become: true
   pre_tasks:
@@ -128,14 +128,9 @@
       when: inventory_hostname in seed_nodes
   roles:
     - role: dash_cli
-    - role: dashd
-      dashd_listen: true
-      dashd_zmq: true
-      dashd_indexes: true
-      tags:
-        - dashd
-    - role: tenderdash
-    - core_filebeat
+    - role: dashmate
+      vars:
+        tenderdash_mode: seed
     - metricbeat
 
 - name: Set up core on masternodes

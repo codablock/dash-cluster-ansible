@@ -4,21 +4,6 @@
   ansible.builtin.import_role:
     name: dashmate
     tasks_from: destroy_platform
-  when: inventory_hostname in groups["hp_masternodes"]
-
-- name: Remove tenderdash (seeds)
-  community.docker.docker_compose_v2:
-    project_src: '{{ tenderdash_compose_path }}'
-    state: absent
-  when:
-    - inventory_hostname not in groups["hp_masternodes"]
-
-- name: Delete tenderdash dir (seeds)
-  ansible.builtin.file:
-    state: absent
-    path: '{{ tenderdash_compose_path }}'
-  when:
-    - inventory_hostname not in groups["hp_masternodes"]
 
 - name: Remove any remaining docker data
   community.docker.docker_prune:
