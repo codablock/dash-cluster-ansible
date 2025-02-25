@@ -167,8 +167,7 @@
     - metricbeat
   tags:
     - full_deploy
-    - core_update
-    - platform_update
+    - update_seed_nodes
 
 - name: Set up core on masternodes
   hosts: masternodes
