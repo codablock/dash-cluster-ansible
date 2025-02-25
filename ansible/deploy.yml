@@ -7,6 +7,9 @@
   become: true
   roles:
     - remove_fake_latency
+  tags:
+    - full_deploy
+    - maintenance
 
 - name: Set up swap and aws environment vars
   hosts: all
@@ -26,6 +29,9 @@
     - role: aws
       when: is_aws_environment
     - swap
+  tags:
+    - full_deploy
+    - infra_setup
 
 - name: Setup VPN
   hosts: vpn
@@ -33,7 +39,10 @@
   roles:
     - role: openvpn
       when: openvpn_enabled
-      tags: vpn
+  tags:
+    - full_deploy
+    - infra_setup
+    - vpn
 
 - name: Setup jq, Python, CWAgent and Docker
   hosts: all
@@ -65,6 +74,9 @@
     - docker_options
     - eternal_terminal
     - cwagent
+  tags:
+    - full_deploy
+    - infra_setup
 
 - name: Configure tcpdump
   hosts: all
@@ -72,6 +84,9 @@
   roles:
     - role: tcpdumpd
       when: dashd_network_logging != 0
+  tags:
+    - full_deploy
+    - infra_setup
 
 - name: Setup logs
   hosts: logs_nodes
@@ -79,6 +94,9 @@
   roles:
     - elastic_stack
     - metricbeat
+  tags:
+    - full_deploy
+    - infra_setup
 
 - name: Setup load tester
   hosts: load_test
@@ -86,6 +104,9 @@
   roles:
     - role: protobuf_compiler
     - role: load_tool
+  tags:
+    - full_deploy
+    - infra_setup
 
 - name: Setup metrics
   hosts: metrics
@@ -93,6 +114,9 @@
   roles:
     - metrics
     - metricbeat
+  tags:
+    - full_deploy
+    - infra_setup
 
 - name: Set up miners
   hosts: miners
@@ -104,6 +128,8 @@
         - dashd
     - core_filebeat
     - metricbeat
+  tags:
+    - full_deploy
 
 - name: Set up mixers
   hosts: mixer_nodes
@@ -115,6 +141,8 @@
         - dashd
     - core_filebeat
     - metricbeat
+  tags:
+    - full_deploy
 
 - name: Set up core and tenderdash on seed nodes
   hosts: seed_nodes
@@ -137,6 +165,10 @@
     - role: tenderdash
     - core_filebeat
     - metricbeat
+  tags:
+    - full_deploy
+    - core_update
+    - platform_update
 
 - name: Set up core on masternodes
   hosts: masternodes
@@ -162,6 +194,10 @@
     - mn_status_report
     - core_filebeat
     - metricbeat
+  tags:
+    - full_deploy
+    - core_update
+    - update_masternodes
 
 
 # Start network
@@ -172,6 +208,8 @@
   roles:
     - role: generate_firstblock
       when: dash_network == "devnet" or dash_network == "regtest"
+  tags:
+    - full_deploy
 
 - name: Start miner
   hosts: miners
@@ -179,6 +217,8 @@
   roles:
     - role: dashd_generate_miner
       when: dash_network != "mainnet"
+  tags:
+    - full_deploy
 
 - name: Setup faucet and insight
   hosts: web
@@ -194,6 +234,7 @@
     - core_filebeat
     - metricbeat
   tags:
+    - full_deploy
     - web
 
 - name: Set up wallets
@@ -209,6 +250,9 @@
         - dashd
     - core_filebeat
     - metricbeat
+  tags:
+    - full_deploy
+    - core_update
 
 # Register masternodes and set sporks
 
@@ -219,12 +263,18 @@
     - role: mn_init
       mnlist: "{{ masternodes }}"
       funding_amount: "{{ masternode_collaterals.mn | int }}"
+  tags:
+    - full_deploy
+    - unban_masternodes
 
 - name: Update inventory with protx values
   hosts: wallet_nodes
   roles:
     - role: mn_protx_config
       mnlist: "{{ masternodes }}"
+  tags:
+    - full_deploy
+    - unban_masternodes
 
 - name: Register HP masternodes
   hosts: wallet_nodes
@@ -233,12 +283,18 @@
     - role: mn_init
       mnlist: "{{ hp_masternodes }}"
       funding_amount: "{{ masternode_collaterals.hpmn | int }}"
+  tags:
+    - full_deploy
+    - unban_hp_masternodes
 
 - name: Update inventory with HPMN protx values
   hosts: wallet_nodes
   roles:
     - role: mn_protx_config
       mnlist: "{{ hp_masternodes }}"
+  tags:
+    - full_deploy
+    - unban_hp_masternodes
 
 
 - name: Fund load tester nodes
@@ -254,7 +310,8 @@
       vars:
         payment_targets: "{{ load_tester_addresses }}"
         amount: "{{ load_tester_wallet_amount }}"
-
+  tags:
+    - full_deploy
 
 - name: Activate sporks
   hosts: wallet_nodes
@@ -263,6 +320,8 @@
     - role: activate_dashd_sporks
       when: dash_network != "mainnet" and dash_network != "testnet"
       delegate_to: '{{ play_hosts | first }}'
+  tags:
+    - full_deploy
 
 # todo: partially working code causes errors in deploy, comment out for now and fix later
 # - name: Create governance proposals
@@ -286,12 +345,19 @@
     - role: dashmate
     - role: mn_status_report
     - role: metricbeat
+  tags:
+    - full_deploy
+    - platform_update
+    - update_hp_masternodes
 
 - name: Set up protx diff script
   hosts: masternodes
   become: true
   roles:
     - role: mn_protx_diff
+  tags:
+    - full_deploy
+    - maintenance
 
 - name: Set up fake latency on masternodes
   hosts: hp_masternodes,masternodes
@@ -301,11 +367,16 @@
       when: masternode_network_latency
     - role: remove_fake_latency
       when: not masternode_network_latency
+  tags:
+    - full_deploy
+    - maintenance
 
 - name: Generate dash.conf for configs repo
   hosts: localhost
   roles:
     - dash-conf
+  tags:
+    - full_deploy
 
 - name: Clean up
   hosts: all
@@ -320,3 +391,6 @@
         networks: true
         volumes: false
         builder_cache: true
+  tags:
+    - full_deploy
+    - cleanup
