@@ -71,7 +71,7 @@ done
 . ./lib/cli/ansible.sh
 
 # Ensure the network name is passed correctly to firstRun.js
-node ./bin/firstRun.js ${NETWORK_NAME} || exit
+node ./bin/firstRun.js ${NETWORK} ${NETWORK_NAME} || exit
 
 case ${STAGE} in
     1)
@@ -81,7 +81,7 @@ case ${STAGE} in
             if git symbolic-ref --quiet HEAD 2>/dev/null; then
                 BRANCH=$(git symbolic-ref --short HEAD)
                 if [[ $BRANCH == "devnet-"* ]]; then
-                    if [[ $BRANCH != "$NETWORK_NAME" ]]; then
+                    if [[ $BRANCH != $NETWORK_NAME ]]; then
                         echo "Wrong Devnet - Check you're in the correct branch. Use -f to force if you're sure"
                         exit 1
                     fi
