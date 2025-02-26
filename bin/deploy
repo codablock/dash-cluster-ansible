@@ -71,7 +71,7 @@ done
 . ./lib/cli/ansible.sh
 
 # Ensure the network name is passed correctly to firstRun.js
-node ./bin/firstRun.js ${NETWORK} ${NETWORK_NAME} || exit
+node ./bin/firstRun.js ${NETWORK_NAME} || exit
 
 case ${STAGE} in
     1)
