@@ -5,6 +5,7 @@ set -ea
 . ./lib/cli/utils.sh
 
 ansible_playbook="deploy.yml"
+ANSIBLE_TAGS="full_deploy"  # Default tag
 
 CMD_USAGE="Deploy Dash Network
 
@@ -16,10 +17,15 @@ Options:
   -f        --force-deployment            - Force deployment of a devnet branch on a different devnet
   -s        --stage                       - Stage of deployment, defaults to first stage (1)
   -a=<args> --ansible-args=<args>         - Pass extra arguments to ansible-playbook command
+  --tags=<tags>                           - Specify tags for deployment (comma-separated). Default: full_deploy
             --ansible-playbook=<playbook> - Specify custom playbook. Default: deploy
   -h        --help                        - Show help"
 
-STAGE=1 #Default
+STAGE=1 # Default 
+
+# The network name is now assigned from the first unflagged argument, not from the last argument
+NETWORK_NAME=""
+
 for i in "$@"
 do
 case ${i} in
@@ -35,6 +41,9 @@ case ${i} in
     -a=*|--ansible-args=*)
     ANSIBLE_ARGS="${i#*=}"
     ;;
+    --tags=*)
+    ANSIBLE_TAGS="${i#*=}"
+    ;;
     --ansible-playbook=*)
     ansible_playbook="${i#*=}.yml"
     ;;
@@ -46,7 +55,13 @@ case ${i} in
         exit 0
     ;;
     *)
-    NETWORK_NAME="${i#*=}"
+    if [[ -z "$NETWORK_NAME" ]]; then
+        NETWORK_NAME="$i"
+    else
+        echo "Error: Invalid argument '$i'. Only one network name is allowed."
+        echo "$CMD_USAGE"
+        exit 1
+    fi
     ;;
 esac
 done
@@ -55,11 +70,12 @@ done
 . ./lib/cli/terraform.sh
 . ./lib/cli/ansible.sh
 
-node ./bin/firstRun.js ${NETWORK} ${NETWORK_NAME} || exit
+# Ensure the network name is passed correctly to firstRun.js
+node ./bin/firstRun.js ${NETWORK_NAME} || exit
 
 case ${STAGE} in
     1)
-        echo "Deploying $NETWORK_NAME network... stage (1)";
+        echo "Deploying $NETWORK_NAME network with tags: $ANSIBLE_TAGS ... stage (1)"
 
         if [[ $FORCED_DEPLOYMENT != 1 ]]; then
             if git symbolic-ref --quiet HEAD 2>/dev/null; then
@@ -85,12 +101,12 @@ case ${STAGE} in
 
         # Install software and configure dash network using Ansible
         if [ -z ${ONLY_INFRASTRUCTURE} ]; then
-            ansible_run_playbook "$ansible_playbook"
+            ansible_run_playbook "$ansible_playbook" --tags "$ANSIBLE_TAGS"
         else
             echo "Skipping Ansible provisioning"
         fi
     ;;
     2)
-        ansible_run_playbook "stage2.yml"
+        ansible_run_playbook "stage2.yml" --tags "$ANSIBLE_TAGS"
     ;;
 esac
