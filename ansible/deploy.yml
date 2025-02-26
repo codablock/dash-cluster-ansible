@@ -346,8 +346,7 @@
     - role: metricbeat
   tags:
     - full_deploy
-    - platform_update
-    - update_hp_masternodes
+
 
 - name: Set up protx diff script
   hosts: masternodes
