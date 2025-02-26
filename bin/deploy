@@ -99,7 +99,7 @@ case ${STAGE} in
             echo "Skipping Terraform infrastructure deployment"
         fi
 
-        # Install software and configure Dash network using Ansible
+        # Install software and configure dash network using Ansible
         if [ -z ${ONLY_INFRASTRUCTURE} ]; then
             ansible_run_playbook "$ansible_playbook" --tags "$ANSIBLE_TAGS"
         else
